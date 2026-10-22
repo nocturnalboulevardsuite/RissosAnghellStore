@@ -489,7 +489,6 @@ def consult_message(db, p):
 # 6 · SESIÓN Y NAVEGACIÓN
 # ══════════════════════════════════════════════════════════════════════════
 ss = st.session_state
-ss.setdefault("theme", "light")
 ss.setdefault("role", None)
 ss.setdefault("user_id", None)
 ss.setdefault("view", "home")
@@ -515,11 +514,6 @@ def logout():
     ss.role, ss.user_id = None, None
     flash("Cerraste sesión", ":material/logout:")
     go("home")
-
-
-def _toggle_theme():
-    ss["_anim"] = True
-    ss.theme = "dark" if ss.theme == "light" else "light"
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -615,14 +609,12 @@ hr{border-color:var(--line)!important;margin:1.4rem 0!important}
 .ra-brand b{display:block;font-size:1.12rem;font-weight:600;letter-spacing:-.01em;color:var(--text);line-height:1.1}
 .ra-brand span{display:block;font-size:.72rem;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-top:2px}
 /* Botón flotante de tema (abajo a la izquierda) */
-.st-key-theme_sw{display:flex;justify-content:flex-end;width:auto!important}
-.st-key-theme_sw button{position:relative;width:58px!important;min-width:58px!important;height:32px!important;min-height:32px!important;padding:0!important;border-radius:999px!important;background:var(--sw-track)!important;border:none!important;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.18)!important;transition:background-color .45s cubic-bezier(.4,0,.2,1)!important}
-.st-key-theme_sw button:hover{filter:brightness(1.04)}
-.st-key-theme_sw button p,.st-key-theme_sw button span{font-size:0!important;opacity:0}
-.st-key-theme_sw button::after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:999px;background:var(--sw-icon) center/14px no-repeat,var(--sw-knob);box-shadow:0 2px 6px rgba(0,0,0,.28);transform:translateX(var(--sw-x));transform-origin:center}
-.st-key-theme_sw button:active::after{transform:translateX(var(--sw-x)) scale(.92)}
-@keyframes knobToDark{0%{transform:translateX(0) scaleX(1)}45%{transform:translateX(15px) scaleX(1.32)}80%{transform:translateX(28px) scaleX(.94)}100%{transform:translateX(26px) scaleX(1)}}
-@keyframes knobToLight{0%{transform:translateX(26px) scaleX(1)}45%{transform:translateX(11px) scaleX(1.32)}80%{transform:translateX(-2px) scaleX(.94)}100%{transform:translateX(0) scaleX(1)}}
+.ra-switch{position:relative;display:block;margin-left:auto;width:58px;height:32px;padding:0;border:none;border-radius:999px;cursor:pointer;background:var(--sw-track);box-shadow:inset 0 1px 3px rgba(0,0,0,.18);transition:background-color .3s cubic-bezier(.4,0,.2,1);-webkit-tap-highlight-color:transparent}
+.ra-switch:focus-visible{outline:1.5px solid var(--red);outline-offset:3px}
+.ra-knob{position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:999px;background:var(--sw-icon) center/14px no-repeat,var(--sw-knob);box-shadow:0 2px 6px rgba(0,0,0,.28);transform:translateX(var(--sw-x));transition:transform .38s cubic-bezier(.34,1.4,.5,1),background-color .3s;will-change:transform}
+.ra-switch:active .ra-knob{width:30px}
+:root[data-theme="dark"] .ra-switch:active .ra-knob{transform:translateX(20px)}
+.st-key-themejs{position:absolute!important;height:0!important;overflow:hidden;visibility:hidden;pointer-events:none}
 /* Streamlit atenúa los elementos mientras recarga: lo desactivamos para que nada parpadee */
 [data-stale="true"],.stale-element,[data-testid="stElementContainer"][data-stale="true"]{opacity:1!important;transition:none!important}
 
@@ -807,34 +799,48 @@ hr{border-color:var(--line)!important;margin:1.4rem 0!important}
 """
 
 
-def theme_vars(theme: str) -> str:
-    return ":root{" + "".join(f"--{k}:{val};" for k, val in THEMES[theme].items()) + "}"
+def theme_vars() -> str:
+    """Los dos temas quedan cargados desde el inicio; el navegador elige con data-theme."""
+    v = lambda t: "".join(f"--{k}:{val};" for k, val in THEMES[t].items())
+    return f':root{{{v("light")}}}:root[data-theme="dark"]{{{v("dark")}}}'
 
 
 def inject_css():
-    html(f"<style>{theme_vars(ss.theme)}{CSS}</style>")
+    html(f"<style>{theme_vars()}{CSS}</style>")
 
 
-# Transición tipo Pinterest: los colores se funden de un tema al otro, sin capas ni parpadeos.
-# :where() tiene especificidad 0, así no pisa las animaciones propias de cada elemento.
-_FADE_CSS = (
-    "html,body,.stApp,[data-testid=stAppViewContainer],[data-testid=stMain],.st-key-hdr,"
-    ":where(.stApp *){transition:background-color .55s cubic-bezier(.4,0,.2,1),"
-    "color .55s cubic-bezier(.4,0,.2,1),border-color .55s cubic-bezier(.4,0,.2,1),"
-    "fill .55s cubic-bezier(.4,0,.2,1),stroke .55s cubic-bezier(.4,0,.2,1)}"
-)
+# Script que vive en la página principal: cambia el tema al instante al tocar el switch
+# y lo recuerda (localStorage). Se instala una sola vez y sobrevive a las recargas de Streamlit.
+THEME_JS = """<script>(function(){
+const d=window.parent.document;
+if(d.getElementById('ra-theme-js'))return;
+const s=d.createElement('script');s.id='ra-theme-js';
+s.textContent=`(function(){
+  const root=document.documentElement;
+  try{const t=localStorage.getItem('ra-theme');if(t)root.dataset.theme=t;}catch(e){}
+  document.addEventListener('click',function(e){
+    const b=e.target.closest('.ra-switch');if(!b)return;
+    const next=root.dataset.theme==='dark'?'light':'dark';
+    root.dataset.theme=next;
+    try{localStorage.setItem('ra-theme',next);}catch(e){}
+  });
+})();`;
+d.head.appendChild(s);
+})();</script>"""
 
 
-@st.fragment
-def theme_control():
-    """Botón de tema aislado: al tocarlo solo se recarga este botón, nunca la página entera."""
-    css = theme_vars(ss.theme)
-    if ss.pop("_anim", False):
-        knob = "knobToDark" if ss.theme == "dark" else "knobToLight"
-        css += _FADE_CSS + f".st-key-theme_sw button::after{{animation:{knob} .55s cubic-bezier(.45,.05,.2,1)}}"
-    html(f"<style>{css}</style>")
-    st.button("Tema", key="theme_sw", on_click=_toggle_theme,
-              help="Cambiar a tema oscuro" if ss.theme == "light" else "Cambiar a tema claro")
+def theme_switch_html() -> str:
+    return ('<button class="ra-switch" type="button" aria-label="Cambiar entre tema claro y oscuro" '
+            'title="Cambiar tema"><span class="ra-knob"></span></button>')
+
+
+def install_theme_js():
+    with st.container(key="themejs"):
+        if hasattr(st, "iframe"):
+            st.iframe(THEME_JS, height=1)
+        else:
+            import streamlit.components.v1 as components
+            components.html(THEME_JS, height=0)
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -877,8 +883,7 @@ def render_header(db, view):
                 label, icon, target = "Ingresar", ":material/checkroom:", "login"
             if st.button(label, key="nav_acc", icon=icon, use_container_width=True):
                 go(target)
-        with c_theme:
-            theme_control()
+        c_theme.markdown(theme_switch_html(), unsafe_allow_html=True)
 
 
 def render_hero():
@@ -1561,6 +1566,7 @@ def render_footer():
 def main():
     db = load_db()
     inject_css()
+    install_theme_js()
     if "_flash" in ss:
         msg, icon = ss.pop("_flash")
         st.toast(msg, icon=icon)
