@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-RISSOS ANGHELL STORE · Benjamín Espinoza
-──────────────────────────────────────────
-Ejecutar:   streamlit run app.py
-Tu foto:    sube "benja.jpeg" a la raíz del repositorio (al lado de app.py) o a /assets.
-Admin:      contraseña inicial "anghell2026" (cámbiala en Panel › Ajustes).
+(RAS) RISSOS ANGHELL STORE · Benjamín Espinoza
+───────────────────────────────────────────────
+Ejecutar:  streamlit run app.py
+Tu foto:   sube "benja.jpeg" a la raíz del repositorio (al lado de app.py) o a /assets.
+Admin:     contraseña inicial "anghell2026" (cámbiala en Panel › Ajustes).
 """
 import base64
 import hashlib
@@ -22,7 +22,7 @@ from urllib.parse import quote
 import streamlit as st
 from PIL import Image, ImageOps
 
-st.set_page_config(page_title="Rissos Anghell Store", page_icon=":material/diamond:",
+st.set_page_config(page_title="(RAS) Rissos Anghell Store", page_icon=":material/water_drop:",
                    layout="wide", initial_sidebar_state="collapsed")
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -37,6 +37,7 @@ IMG_DIR.mkdir(parents=True, exist_ok=True)
 
 OWNER = {
     "name": "Benjamín Espinoza",
+    "role": "Fundador · Rissos Anghell Store",
     "tagline": "Compra y venta de artículos, ropa, perfumes y más.",
     "photo_names": ("benja.jpeg", "benja.jpg", "Benja.jpeg", "Benja.jpg", "benja.png", "benja.webp"),
     "whatsapp": "56936992950",
@@ -58,73 +59,89 @@ MADE_IN = ["China", "Taiwán", "EE.UU.", "Vietnam", "Bangladesh", "India", "Indo
            "Tailandia", "Turquía", "Pakistán", "México", "Brasil", "Chile", "Perú", "Italia",
            "Francia", "España", "Portugal", "Alemania", "Reino Unido", "Japón", "Corea del Sur",
            "Emiratos Árabes", "Otro"]
-AVATAR_COLORS = {"Rojo": "#A8182E", "Blanco": "#F4F1EA", "Negro": "#141210", "Azul": "#2C4E9A",
-                 "Verde": "#2F6B50", "Morado": "#5B3F8C", "Naranjo": "#C9682A", "Dorado": "#B08D57",
-                 "Rosado": "#C77A8E", "Gris": "#7C776F"}
+AVATAR_COLORS = {"Rojo": "#C8102E", "Blanco": "#F2F2F2", "Negro": "#111111", "Azul": "#24489C",
+                 "Verde": "#2F6B50", "Morado": "#5B3F8C", "Naranjo": "#D06A28", "Dorado": "#B08A3E",
+                 "Rosado": "#C9708A", "Gris": "#7A7A7A"}
 
 
 def _svg_url(svg: str) -> str:
     return 'url("data:image/svg+xml,' + quote(svg) + '")'
 
 
-_SUN = _svg_url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#8C6B37" '
+_SUN = _svg_url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#B08A3E" '
                 'stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2'
                 'M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>')
-_MOON = _svg_url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#C21F3A">'
+_MOON = _svg_url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#FF2D4A">'
                  '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>')
 
-# Claro: marfil + dorado · Oscuro: negro + rojo
+# Claro: blanco · dorado · negro   |   Oscuro: negro · blanco · rojo neón mate
 THEMES = {
-    "light": {"bg": "#F8F5EE", "bg2": "#F1ECE1", "surface": "#FFFDF8", "text": "#1C1813",
-              "muted": "#7A7163", "faint": "#ABA190", "line": "rgba(140,107,55,.18)",
-              "line2": "rgba(140,107,55,.34)", "accent": "#9C7A43", "accent2": "#C9A96E",
-              "accent-ink": "#FFFDF8", "accent-soft": "rgba(176,141,87,.12)", "chip": "rgba(140,107,55,.08)",
-              "shadow": "rgba(60,44,20,.14)", "head": "rgba(248,245,238,.94)", "ok": "#4E7A4B",
-              "sw-track": "#EFE6D3", "sw-knob": "#FFFDF8", "sw-x": "0px", "sw-icon": _SUN},
-    "dark": {"bg": "#0A0909", "bg2": "#121010", "surface": "#141212", "text": "#F1ECE4",
-             "muted": "#8E867B", "faint": "#5C564E", "line": "rgba(241,236,228,.09)",
-             "line2": "rgba(241,236,228,.18)", "accent": "#C21F3A", "accent2": "#E0485F",
-             "accent-ink": "#FFFFFF", "accent-soft": "rgba(194,31,58,.14)", "chip": "rgba(241,236,228,.06)",
-             "shadow": "rgba(0,0,0,.55)", "head": "rgba(10,9,9,.94)", "ok": "#6FBF73",
-             "sw-track": "#2A1015", "sw-knob": "#0A0909", "sw-x": "26px", "sw-icon": _MOON},
+    "light": {"bg": "#FFFFFF", "bg2": "#F6F4EF", "text": "#0B0B0B", "muted": "#6E6E6E", "faint": "#A9A9A9",
+              "line": "rgba(11,11,11,.08)", "line2": "rgba(11,11,11,.2)", "accent": "#B08A3E",
+              "accent-ink": "#FFFFFF", "accent-soft": "rgba(176,138,62,.14)", "glow": "none",
+              "drop-glow": "none", "head": "rgba(255,255,255,.96)", "ok": "#3F7D4E",
+              "sw-track": "#F1EBDD", "sw-knob": "#FFFFFF", "sw-x": "0px", "sw-icon": _SUN},
+    "dark": {"bg": "#050505", "bg2": "#0F0F0F", "text": "#F4F4F4", "muted": "#8C8C8C", "faint": "#565656",
+             "line": "rgba(244,244,244,.08)", "line2": "rgba(244,244,244,.2)", "accent": "#FF2D4A",
+             "accent-ink": "#FFFFFF", "accent-soft": "rgba(255,45,74,.14)",
+             "glow": "0 0 24px rgba(255,45,74,.45)", "drop-glow": "drop-shadow(0 0 5px rgba(255,45,74,.75))",
+             "head": "rgba(5,5,5,.94)", "ok": "#5FD07A",
+             "sw-track": "#1E080C", "sw-knob": "#050505", "sw-x": "26px", "sw-icon": _MOON},
 }
 
-# Íconos dibujados (trazo fino uniforme)
-_I = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" '
+# ── Íconos de marca, con sus colores reales ──────────────────────────────
+WA_PATH = ("M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.08"
+           "-.3-.15-1.26-.46-2.39-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2"
+           "-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27"
+           ".3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.07.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.7.63.71.22 1.36"
+           ".19 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.18-1.41-.08-.13-.28-.2-.57-.35zM12.05 21.79h-.01a9.87"
+           " 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.89"
+           "-9.88 2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 0 1 2.89 6.99c0 5.45-4.44 9.88-9.88 9.88zm8.41-18.3A11.82"
+           " 11.82 0 0 0 12.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0"
+           " 5.69 1.45c6.55 0 11.89-5.34 11.89-11.89 0-3.18-1.24-6.17-3.48-8.42z")
+BRAND = {
+    "whatsapp": f'<svg viewBox="0 0 24 24"><path fill="#25D366" d="{WA_PATH}"/></svg>',
+    "whatsapp_white": f'<svg viewBox="0 0 24 24"><path fill="#FFFFFF" d="{WA_PATH}"/></svg>',
+    "instagram": (
+        '<svg viewBox="0 0 24 24"><defs><radialGradient id="rag" cx="28%" cy="105%" r="140%">'
+        '<stop offset="0" stop-color="#FDF497"/><stop offset=".08" stop-color="#FDF497"/>'
+        '<stop offset=".45" stop-color="#FD5949"/><stop offset=".62" stop-color="#D6249F"/>'
+        '<stop offset=".92" stop-color="#285AEB"/></radialGradient></defs>'
+        '<rect width="24" height="24" rx="6.5" fill="url(#rag)"/>'
+        '<rect x="5.4" y="5.4" width="13.2" height="13.2" rx="4" fill="none" stroke="#fff" stroke-width="1.7"/>'
+        '<circle cx="12" cy="12" r="3.15" fill="none" stroke="#fff" stroke-width="1.7"/>'
+        '<circle cx="16.15" cy="7.85" r="1" fill="#fff"/></svg>'),
+    "gmail": (
+        '<svg viewBox="0 0 48 48"><path fill="#4CAF50" d="M45 16.2l-5 2.75-5 4.75V40h7c1.66 0 3-1.34 3-3V16.2z"/>'
+        '<path fill="#1E88E5" d="M3 16.2l3.61 1.71L13 23.7V40H6c-1.66 0-3-1.34-3-3V16.2z"/>'
+        '<path fill="#E53935" d="M35 11.2L24 19.45 13 11.2 12 17l1 6.7 11 8.25 11-8.25 1-6.7z"/>'
+        '<path fill="#C62828" d="M3 12.3v3.9l10 7.5V11.2L9.88 8.86A4.3 4.3 0 0 0 7.3 8C4.92 8 3 9.92 3 12.3z"/>'
+        '<path fill="#FBC02D" d="M45 12.3v3.9l-10 7.5V11.2l3.12-2.34A4.3 4.3 0 0 1 40.7 8c2.38 0 4.3 1.92 4.3 4.3z"/></svg>'),
+}
+_I = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" '
       'stroke-linecap="round" stroke-linejoin="round">')
 ICON = {
-    "whatsapp": '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.26-.46-2.39-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.07.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.7.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.18-1.41-.08-.13-.28-.2-.57-.35zM12.05 21.79h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 0 1 2.89 6.99c0 5.45-4.44 9.88-9.88 9.88zm8.41-18.3A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.69 1.45c6.55 0 11.89-5.34 11.89-11.89 0-3.18-1.24-6.17-3.48-8.42z"/></svg>',
-    "instagram": _I + '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.6" r=".7" fill="currentColor"/></svg>',
-    "mail": _I + '<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="m3.5 6.5 8.5 6 8.5-6"/></svg>',
-    "arrow": _I + '<path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+    "arrow": _I + '<path d="M4 12h16M14 6l6 6-6 6"/></svg>',
     "phone": _I + '<path d="M21 16.5v2.6a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 3.1 3.3 2 2 0 0 1 5.1 1h2.6a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.8 8.6a16 16 0 0 0 6 6l1.1-1.1a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>',
+    "mail": _I + '<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="m3.5 6.5 8.5 6 8.5-6"/></svg>',
     "pin": _I + '<path d="M19 10c0 5.5-7 11-7 11s-7-5.5-7-11a7 7 0 0 1 14 0z"/><circle cx="12" cy="10" r="2.5"/></svg>',
     "calendar": _I + '<rect x="3" y="4.5" width="18" height="16.5" rx="1.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>',
-    "globe": _I + '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.6 5.8 3.6 9s-1.1 6.3-3.6 9c-2.5-2.7-3.6-5.8-3.6-9S9.5 5.7 12 3z"/></svg>',
-    "ruler": _I + '<path d="M3 17 17 3l4 4L7 21z"/><path d="m7 13 2 2M10 10l2 2M13 7l2 2"/></svg>',
-    "tag": _I + '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg>',
-    "spark": _I + '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>',
-    "box": _I + '<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>',
-    "check": _I + '<path d="M20 6 9 17l-5-5"/></svg>',
-    "truck": _I + '<path d="M2 6h11v10H2zM13 10h4l4 3v3h-8z"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>',
-    "chat": _I + '<path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.2A8 8 0 1 1 21 12z"/></svg>',
     "gender": _I + '<circle cx="10" cy="14" r="5"/><path d="M14 10l6-6M15 4h5v5"/></svg>',
-    "bag": _I + '<path d="M5 8h14l-1 13H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
 }
 
-# Logo: monograma R·A·S dentro de un sello
+# ── Logo (RAS): paréntesis caligráficos, R cuya pierna nace la A, gota de perfume ──
 LOGO = (
-    '<svg class="ra-logo-svg" viewBox="0 0 120 120" fill="none" stroke="currentColor">'
-    '<circle class="ra-ring" cx="60" cy="60" r="56" stroke-width="1"/>'
-    '<circle cx="60" cy="60" r="50" stroke-width=".5" opacity=".55"/>'
-    '<path d="M60 6 l3.2 4 -3.2 4 -3.2 -4z" fill="currentColor" stroke="none"/>'
-    '<path d="M60 106 l3.2 4 -3.2 4 -3.2 -4z" fill="currentColor" stroke="none"/>'
-    '<text x="60" y="72" text-anchor="middle" fill="currentColor" stroke="none" '
-    'font-family="Cormorant Garamond,Didot,Georgia,serif">'
-    '<tspan font-size="30" font-weight="500">R</tspan>'
-    '<tspan font-size="44" font-style="italic" font-weight="400" dy="2">A</tspan>'
-    '<tspan font-size="30" font-weight="500" dy="-2">S</tspan></text>'
-    '<path d="M34 84 H86" stroke-width=".6" opacity=".6"/></svg>'
+    '<svg class="ra-mark" viewBox="0 0 200 80" fill="none" aria-label="(RAS) Rissos Anghell Store">'
+    '<path class="ra-par" d="M36 6 C14 22 14 58 36 74 C24 58 24 22 36 6Z" fill="currentColor"/>'
+    '<path class="ra-par" d="M164 6 C186 22 186 58 164 74 C176 58 176 22 164 6Z" fill="currentColor"/>'
+    '<g stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">'
+    '<path class="ra-ln" pathLength="1" d="M54 64 V24 H68 Q82 24 82 34.5 Q82 45 68 45 H54"/>'
+    '<path class="ra-ln d2" pathLength="1" d="M68 45 L86 64 L100 26 L114 64"/>'
+    '<path class="ra-ln d3" pathLength="1" d="M92.5 51 H107.5"/>'
+    '<path class="ra-ln d4" pathLength="1" d="M148 30 C145 25 140 24 135.5 24 C128.5 24 124.5 28 124.5 33.5 '
+    'C124.5 45 148.5 41.5 148.5 53.5 C148.5 60 143 64 135.5 64 C129.5 64 125.5 61.5 123.5 57.5"/></g>'
+    '<path class="ra-drop" d="M100 3 C100 3 94.6 10.4 94.6 14.2 A5.4 5.4 0 0 0 105.4 14.2 C105.4 10.4 100 3 100 3Z"/>'
+    '</svg>'
 )
 
 
@@ -172,6 +189,11 @@ def size_label(p) -> str:
     return "" if not s else (f"Talla {s}" if p.get("category") in SIZED else s)
 
 
+def meta_line(p) -> str:
+    parts = [size_label(p), f"Made in {p['made_in']}" if p.get("made_in") else ""]
+    return " · ".join(x for x in parts if x)
+
+
 def hash_pw(pw: str, salt: str | None = None) -> str:
     salt = salt or secrets.token_hex(8)
     return f"{salt}${hashlib.pbkdf2_hmac('sha256', pw.encode(), salt.encode(), 120_000).hex()}"
@@ -188,7 +210,7 @@ def b64svg(svg: str) -> str:
 
 
 # ══════════════════════════════════════════════════════════════════════════
-# 3 · IMÁGENES (todo en caché para que la página no tenga lag)
+# 3 · IMÁGENES (en caché: la página no se pone lenta)
 # ══════════════════════════════════════════════════════════════════════════
 ILLUS = {
     "tshirt": '<path d="M300 330 L365 292 C380 322 420 322 435 292 L500 330 L565 425 L512 455 L490 425 L490 712 L310 712 L310 425 L288 455 L235 425 Z"/><path d="M365 292 C380 340 420 340 435 292"/>',
@@ -199,32 +221,30 @@ ILLUS = {
     "monitor": '<rect x="236" y="320" width="328" height="226" rx="10"/><rect x="262" y="344" width="276" height="178" rx="3"/><path d="M380 546 L370 640 H430 L420 546"/><path d="M322 650 H478"/>',
     "bag": '<path d="M290 420 H510 L530 712 H270 Z"/><path d="M345 420 V380 C345 330 455 330 455 380 V420"/>',
 }
-# fondo 1, fondo 2, trazo
-PALETTES = [("#F4EEE2", "#E7DAC2", "#8C6B37"), ("#1A1817", "#0E0D0C", "#C9A96E"),
-            ("#F7F3EA", "#ECE2D0", "#5A4527"), ("#4A0F1A", "#22070D", "#E8CFA0"),
-            ("#EDE8E0", "#D9D1C4", "#2E2820"), ("#EFE6D3", "#DCC9A6", "#6E2330")]
+PALETTES = [("#F3F1EC", "#E6E1D8", "#1A1A1A"), ("#121212", "#050505", "#E9E2D3"),
+            ("#EEE7DA", "#DDD1BC", "#8A6A2E"), ("#1C0B0F", "#0A0405", "#FF4D63"),
+            ("#F7F7F7", "#E9E9E9", "#3A3A3A"), ("#D8D1C4", "#C5BBA9", "#2A2420")]
 
 
 @st.cache_data(show_spinner=False, max_entries=300)
 def demo_svg(kind: str, idx: int) -> str:
     a, b, fg = PALETTES[idx % len(PALETTES)]
     return b64svg(
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">'
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1066">'
         f'<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{a}"/>'
-        f'<stop offset="1" stop-color="{b}"/></linearGradient></defs><rect width="800" height="1000" fill="url(#g)"/>'
-        f'<rect x="40" y="40" width="720" height="920" fill="none" stroke="{fg}" stroke-opacity=".22" stroke-width="2"/>'
-        f'<g fill="{fg}" fill-opacity=".05" stroke="{fg}" stroke-width="5" stroke-linecap="round" '
-        f'stroke-linejoin="round" transform="translate(0 20)">{ILLUS.get(kind, ILLUS["bag"])}</g>'
-        f'<text x="400" y="905" font-size="20" letter-spacing="8" text-anchor="middle" fill="{fg}" '
-        'fill-opacity=".55" font-family="Georgia,serif">FOTO DE MUESTRA</text></svg>')
+        f'<stop offset="1" stop-color="{b}"/></linearGradient></defs><rect width="800" height="1066" fill="url(#g)"/>'
+        f'<g fill="{fg}" fill-opacity=".05" stroke="{fg}" stroke-width="4.5" stroke-linecap="round" '
+        f'stroke-linejoin="round" transform="translate(0 40)">{ILLUS.get(kind, ILLUS["bag"])}</g>'
+        f'<text x="400" y="1000" font-size="18" letter-spacing="9" text-anchor="middle" fill="{fg}" '
+        'fill-opacity=".45" font-family="Helvetica,Arial,sans-serif">FOTO DE MUESTRA</text></svg>')
 
 
 @st.cache_data(show_spinner=False, max_entries=800)
-def _file_uri(path: str, mtime: float, square: int = 0) -> str:
+def _file_uri(path: str, mtime: float, portrait: int = 0) -> str:
     p = Path(path)
-    if square:  # recorte cuadrado (foto de perfil)
-        img = ImageOps.fit(ImageOps.exif_transpose(Image.open(p)).convert("RGB"), (square, square),
-                           Image.LANCZOS, centering=(0.5, 0.35))
+    if portrait:  # retrato 4:5 recortado (foto de perfil)
+        img = ImageOps.fit(ImageOps.exif_transpose(Image.open(p)).convert("RGB"), (portrait, int(portrait * 1.25)),
+                           Image.LANCZOS, centering=(0.5, 0.3))
         buf = io.BytesIO()
         img.save(buf, "JPEG", quality=88, optimize=True)
         return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
@@ -258,7 +278,7 @@ def save_upload(uploaded, max_side: int = 1400) -> str:
     big = img.copy()
     big.thumbnail((max_side, max_side))
     big.save(IMG_DIR / f"{stem}.jpg", "JPEG", quality=86, optimize=True)
-    img.thumbnail((520, 520))
+    img.thumbnail((560, 560))
     img.save(IMG_DIR / f"{stem}_t.jpg", "JPEG", quality=80, optimize=True)
     return f"images/{stem}.jpg"
 
@@ -277,7 +297,7 @@ def delete_image(entry: str | None):
 def avatar_svg(color: str) -> str:
     c = color.lstrip("#")
     r, g, b = int(c[0:2], 16), int(c[2:4], 16), int(c[4:6], 16)
-    fg = "#1C1813" if (r * 299 + g * 587 + b * 114) / 1000 > 170 else "#FFFDF8"
+    fg = "#111111" if (r * 299 + g * 587 + b * 114) / 1000 > 170 else "#FFFFFF"
     return b64svg(
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><clipPath id="c"><circle cx="50" '
         f'cy="50" r="50"/></clipPath></defs><g clip-path="url(#c)"><rect width="100" height="100" fill="{color}"/>'
@@ -286,7 +306,7 @@ def avatar_svg(color: str) -> str:
 
 
 def user_avatar(u) -> str:
-    return img_src(u["photo"], thumb=True) if u.get("photo") else avatar_svg(u.get("avatar_color") or "#A8182E")
+    return img_src(u["photo"], thumb=True) if u.get("photo") else avatar_svg(u.get("avatar_color") or "#C8102E")
 
 
 def find_owner_photo() -> Path | None:
@@ -300,9 +320,9 @@ def find_owner_photo() -> Path | None:
 def owner_photo() -> str:
     p = find_owner_photo()
     if p:
-        return _file_uri(str(p), p.stat().st_mtime, 420)
-    return b64svg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" '
-                  'fill="#1C1813"/><text x="50" y="62" font-size="32" text-anchor="middle" fill="#C9A96E" '
+        return _file_uri(str(p), p.stat().st_mtime, 560)
+    return b64svg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500"><rect width="400" height="500" '
+                  'fill="#111"/><text x="200" y="285" font-size="110" text-anchor="middle" fill="#B08A3E" '
                   'font-family="Georgia,serif" font-style="italic">BE</text></svg>')
 
 
@@ -319,19 +339,19 @@ def seed_db() -> dict:
         ("Polera roja", "Ropa", 12990, "L", "China", "Rissos Basics", "Nuevo", "Disponible",
          "Algodón peinado, corte regular y color que no se lava.",
          "Polera de algodón peinado de gramaje medio, suave al tacto y con buena caída. El rojo es intenso y se mantiene lavado tras lavado.",
-         ["100% algodón", "Corte regular fit", "Cuello redondo reforzado", "Lavar en frío"], "tshirt", [5, 2, 0]),
+         ["100% algodón", "Corte regular fit", "Cuello redondo reforzado", "Lavar en frío"], "tshirt", [0, 3, 4]),
         ("Pantalón Jean negro", "Ropa", 24990, "42", "Bangladesh", "Denim Co.", "Usado, como nuevo", "Disponible",
          "Jean negro de corte recto, usado dos veces.",
          "Jean negro de mezclilla firme con un toque de elasticidad. Corte recto que funciona con zapatillas o botines. Sin desgaste visible.",
-         ["98% algodón, 2% elastano", "Corte recto", "5 bolsillos", "Tiro medio"], "jeans", [1, 4, 2]),
+         ["98% algodón, 2% elastano", "Corte recto", "5 bolsillos", "Tiro medio"], "jeans", [1, 4, 5]),
         ("Figura de Freezer", "Figuras", 34990, "", "China", "Banpresto", "Nuevo", "Disponible",
          "Figura de colección de Dragon Ball, en su caja.",
          "Figura de Freezer en su forma final, con detalles pintados y base incluida. Ideal para colección; caja en buen estado.",
-         ["Altura aprox.: 18 cm", "Material: PVC", "Base incluida", "Caja original"], "figure", [2, 3, 0]),
+         ["Altura aprox.: 18 cm", "Material: PVC", "Base incluida", "Caja original"], "figure", [2, 1, 0]),
         ("Monitor 144Hz", "Tecnología", 159990, "", "Taiwán", "Genérico 24\"", "Usado, como nuevo", "Disponible",
          "24 pulgadas, Full HD, 144 Hz y 1 ms.",
          "Monitor gamer de 24 pulgadas con panel de 144 Hz, ideal para juegos competitivos. Sin píxeles muertos, con cables y caja.",
-         ["24\" Full HD 1920×1080", "144 Hz, 1 ms", "HDMI y DisplayPort", "Incluye cables"], "monitor", [4, 1, 0]),
+         ["24\" Full HD 1920×1080", "144 Hz, 1 ms", "HDMI y DisplayPort", "Incluye cables"], "monitor", [4, 1, 5]),
         ("Gorra F1", "Accesorios", 19990, "Ajustable", "Vietnam", "Formula 1", "Nuevo", "Agotado",
          "Gorra de seis paneles con bordado frontal.",
          "Gorra de seis paneles con logo bordado y cierre ajustable trasero. Visera curva y forro interior transpirable.",
@@ -486,337 +506,323 @@ def _toggle_theme():
 
 
 # ══════════════════════════════════════════════════════════════════════════
-# 7 · ESTILOS  (solo se animan transform y opacity → fluido, sin lag)
+# 7 · ESTILOS — editorial, sin cajas; solo se anima transform/opacity
 # ══════════════════════════════════════════════════════════════════════════
 CSS = r"""
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap');
-:root{--ease:cubic-bezier(.25,.8,.25,1);--slow:cubic-bezier(.65,0,.35,1);--serif:'Cormorant Garamond',Didot,Georgia,serif;--sans:'Jost','Futura','Century Gothic',system-ui,sans-serif}
-html{font-size:15px;scroll-behavior:smooth}
-.stApp,[data-testid="stMain"]{overflow-x:hidden!important}
-[class*="st-key-grid_"]{gap:2.4rem!important}
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Inter+Tight:wght@300;400;500;600&display=swap');
+:root{--ease:cubic-bezier(.25,.8,.25,1);--slow:cubic-bezier(.65,0,.35,1);--serif:'Bodoni Moda',Didot,'Bodoni 72',Georgia,serif;--sans:'Inter Tight','Helvetica Neue',Helvetica,Arial,sans-serif}
+html{font-size:15px}
 html,body,.stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"]{background:var(--bg)!important;color:var(--text)!important;font-family:var(--sans)}
+.stApp,[data-testid="stMain"]{overflow-x:hidden!important}
+[data-testid="stMain"]{scroll-behavior:smooth}
 [data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stDecoration"],#MainMenu,footer,[data-testid="stStatusWidget"],[data-testid="stSidebarCollapsedControl"],[data-testid="stAppDeployButton"]{display:none!important}
-.block-container,[data-testid="stMainBlockContainer"]{padding:0 1.4rem 1.5rem!important;max-width:1160px!important}
+.block-container,[data-testid="stMainBlockContainer"]{padding:.6rem 2rem 0!important;max-width:1280px!important}
 [data-testid="stVerticalBlock"]{gap:.8rem}
-.stApp [data-testid="stMarkdownContainer"] p,.stApp [data-testid="stMarkdownContainer"] li{color:var(--text);font-size:.95rem;font-weight:300}
-[data-testid="stWidgetLabel"] p{color:var(--muted)!important;font-size:.72rem!important;font-weight:500!important;letter-spacing:.12em;text-transform:uppercase}
-[data-testid="stCaptionContainer"],[data-testid="stCaptionContainer"] p{color:var(--muted)!important;font-size:.78rem!important}
+.stApp [data-testid="stMarkdownContainer"] p,.stApp [data-testid="stMarkdownContainer"] li{color:var(--text);font-size:.92rem;font-weight:300}
+[data-testid="stWidgetLabel"] p{color:var(--muted)!important;font-size:.68rem!important;font-weight:500!important;letter-spacing:.14em;text-transform:uppercase}
+[data-testid="stCaptionContainer"],[data-testid="stCaptionContainer"] p{color:var(--muted)!important;font-size:.76rem!important}
 ::selection{background:var(--accent);color:var(--accent-ink)}
-::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:8px}
-:focus-visible{outline:1.5px solid var(--accent)!important;outline-offset:2px}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:7px}
+:focus-visible{outline:1px solid var(--accent)!important;outline-offset:3px}
 .st-key-scrolltop{position:absolute!important;height:0!important;overflow:hidden;visibility:hidden;pointer-events:none}
 
-/* Formularios */
+/* Campos: solo línea inferior, sin cajas */
 .stApp input,.stApp textarea{color:var(--text)!important;-webkit-text-fill-color:var(--text)!important;caret-color:var(--accent);font-size:.92rem!important;font-family:var(--sans)!important}
 .stApp input::placeholder,.stApp textarea::placeholder{color:var(--faint)!important;-webkit-text-fill-color:var(--faint)!important}
-[data-baseweb="input"],[data-baseweb="textarea"],[data-baseweb="base-input"],[data-baseweb="select"]>div,[data-testid$="RootElement"]{background:var(--surface)!important;border:1px solid var(--line2)!important;border-radius:2px!important}
-[data-testid$="RootElement"]:focus-within,[data-baseweb="input"]:focus-within,[data-baseweb="textarea"]:focus-within,[data-baseweb="select"]>div:focus-within{border-color:var(--accent)!important;box-shadow:0 0 0 3px var(--accent-soft)!important}
-.react-aria-ComboBox [role="group"],[data-testid="stSelectbox"] [role="group"],[data-testid="stMultiSelect"] [role="group"]{background:var(--surface)!important;border:1px solid var(--line2)!important;border-radius:2px!important;min-height:2.5rem}
-.react-aria-ComboBox [role="group"]:focus-within{border-color:var(--accent)!important;box-shadow:0 0 0 3px var(--accent-soft)!important}
+[data-baseweb="input"],[data-baseweb="base-input"],[data-baseweb="select"]>div,[data-testid$="RootElement"],.react-aria-ComboBox [role="group"],[data-testid="stSelectbox"] [role="group"],[data-testid="stMultiSelect"] [role="group"]{background:transparent!important;border:none!important;border-bottom:1px solid var(--line2)!important;border-radius:0!important;box-shadow:none!important}
+[data-baseweb="textarea"]{background:transparent!important;border:1px solid var(--line2)!important;border-radius:0!important}
+[data-testid$="RootElement"]:focus-within,[data-baseweb="input"]:focus-within,.react-aria-ComboBox [role="group"]:focus-within{border-bottom-color:var(--text)!important}
 .react-aria-ComboBox button{color:var(--muted)!important;background:transparent!important}
-[role="listbox"],.react-aria-Popover,.react-aria-ListBox{background:var(--surface)!important;border-color:var(--line2)!important;border-radius:2px!important}
-[role="option"]{color:var(--text)!important}
-[role="option"][data-focused="true"],[role="option"][aria-selected="true"],[role="option"]:hover{background:var(--chip)!important}
+[role="listbox"],.react-aria-Popover,.react-aria-ListBox,[data-baseweb="popover"] ul,[data-baseweb="popover"] [data-baseweb="menu"]{background:var(--bg)!important;border:1px solid var(--line2)!important;border-radius:0!important}
+[role="option"],[data-baseweb="popover"] li{color:var(--text)!important;background:transparent!important}
+[role="option"][data-focused="true"],[role="option"][aria-selected="true"],[role="option"]:hover,[data-baseweb="popover"] li:hover{background:var(--bg2)!important}
 [data-baseweb="select"] *{color:var(--text)!important}
-[data-baseweb="select"] svg{fill:var(--muted)!important}
-[data-baseweb="popover"] ul,[data-baseweb="popover"] [data-baseweb="menu"]{background:var(--surface)!important;border:1px solid var(--line2);border-radius:2px}
-[data-baseweb="popover"] li{color:var(--text)!important;background:transparent!important}
-[data-baseweb="popover"] li:hover,[data-baseweb="popover"] li[aria-selected="true"]{background:var(--chip)!important}
-[data-testid="stNumberInput"] button{background:var(--bg2)!important;color:var(--text)!important;border-color:var(--line)!important}
-[data-testid="stRadio"] label p,[data-testid="stCheckbox"] label p,[data-testid="stToggle"] label p{color:var(--text)!important;font-weight:400!important;font-size:.88rem!important;letter-spacing:0;text-transform:none}
-[data-testid="stFileUploaderDropzone"]{background:var(--bg2)!important;border:1px dashed var(--line2)!important;border-radius:2px!important}
+[data-testid="stNumberInput"] button{background:transparent!important;color:var(--text)!important;border:none!important}
+[data-testid="stRadio"] label p,[data-testid="stCheckbox"] label p,[data-testid="stToggle"] label p{color:var(--text)!important;font-weight:400!important;font-size:.86rem!important;letter-spacing:0;text-transform:none}
+[data-testid="stFileUploaderDropzone"]{background:var(--bg2)!important;border:1px dashed var(--line2)!important;border-radius:0!important}
 [data-testid="stFileUploaderDropzone"] *{color:var(--muted)!important}
 [data-testid="stFileUploaderFile"] *{color:var(--text)!important}
-[data-baseweb="calendar"],[data-baseweb="calendar"] *{background-color:var(--surface)!important;color:var(--text)!important}
+[data-baseweb="calendar"],[data-baseweb="calendar"] *{background-color:var(--bg)!important;color:var(--text)!important}
 
-/* Botones: rectos, finos, con letras espaciadas */
-.stButton button,.stFormSubmitButton button,.stDownloadButton button{background:transparent!important;color:var(--text)!important;border:1px solid var(--line2)!important;border-radius:2px!important;min-height:2.4rem;padding:.3rem 1rem!important;transition:border-color .3s var(--ease),background-color .3s var(--ease),color .3s var(--ease),transform .3s var(--ease)!important}
-.stButton button p,.stFormSubmitButton button p,.stDownloadButton button p{color:inherit!important;font-family:var(--sans)!important;font-weight:500!important;font-size:.74rem!important;letter-spacing:.14em;text-transform:uppercase}
-.stButton button:hover,.stFormSubmitButton button:hover,.stDownloadButton button:hover{border-color:var(--accent)!important;color:var(--accent)!important}
-.stButton button:active{transform:scale(.98)}
+/* Botones: texto, mayúsculas finas */
+.stButton button,.stFormSubmitButton button,.stDownloadButton button{background:transparent!important;color:var(--text)!important;border:1px solid var(--line2)!important;border-radius:0!important;min-height:2.5rem;padding:.3rem 1.1rem!important;transition:background-color .3s var(--ease),color .3s var(--ease),border-color .3s var(--ease)!important}
+.stButton button p,.stFormSubmitButton button p,.stDownloadButton button p{color:inherit!important;font-family:var(--sans)!important;font-weight:500!important;font-size:.7rem!important;letter-spacing:.18em;text-transform:uppercase}
+.stButton button:hover,.stFormSubmitButton button:hover,.stDownloadButton button:hover{border-color:var(--text)!important}
 .stApp button[kind="primary"],.stApp button[kind="primaryFormSubmit"],.stApp [data-testid^="stBaseButton-primary"]{background:var(--text)!important;color:var(--bg)!important;border-color:var(--text)!important}
 .stApp button[kind="primary"]:hover,.stApp button[kind="primaryFormSubmit"]:hover,.stApp [data-testid^="stBaseButton-primary"]:hover{background:var(--accent)!important;border-color:var(--accent)!important;color:var(--accent-ink)!important}
-[data-testid="stButtonGroup"] button[role="radio"]{border-radius:0!important;background:transparent!important;border:none!important;border-bottom:1px solid transparent!important;color:var(--muted)!important;padding:.2rem .1rem!important;margin-right:1rem;min-height:1.8rem!important}
-[data-testid="stButtonGroup"] button[role="radio"] p{color:inherit!important;font-size:.78rem!important;letter-spacing:.14em;text-transform:uppercase;font-weight:500!important}
+[data-testid="stButtonGroup"] button[role="radio"]{border:none!important;border-radius:0!important;background:transparent!important;color:var(--muted)!important;padding:.15rem 0!important;margin-right:1.4rem;min-height:1.6rem!important;box-shadow:inset 0 -1px 0 transparent!important}
+[data-testid="stButtonGroup"] button[role="radio"] p{color:inherit!important;font-size:.72rem!important;letter-spacing:.18em;text-transform:uppercase;font-weight:500!important}
 [data-testid="stButtonGroup"] button[role="radio"]:hover{color:var(--text)!important}
-[data-testid="stButtonGroup"] button[aria-checked="true"]{color:var(--text)!important;border-bottom-color:var(--accent)!important}
+[data-testid="stButtonGroup"] button[aria-checked="true"]{color:var(--text)!important;box-shadow:inset 0 -1px 0 var(--text)!important}
 
-/* Pestañas, expanders, contenedores */
-.stTabs [data-baseweb="tab-list"]{gap:1.4rem;border-bottom:1px solid var(--line);background:transparent}
-.stTabs [data-baseweb="tab"]{background:transparent!important;color:var(--muted)!important;padding:.6rem 0}
-.stTabs [data-baseweb="tab"] p{color:inherit!important;font-size:.75rem!important;letter-spacing:.14em;text-transform:uppercase;font-weight:500!important}
+/* Pestañas, expanders, contenedores: sin cajas */
+.stTabs [data-baseweb="tab-list"]{gap:1.8rem;border-bottom:1px solid var(--line);background:transparent}
+.stTabs [data-baseweb="tab"]{background:transparent!important;color:var(--muted)!important;padding:.7rem 0}
+.stTabs [data-baseweb="tab"] p{color:inherit!important;font-size:.7rem!important;letter-spacing:.18em;text-transform:uppercase;font-weight:500!important}
 .stTabs [aria-selected="true"]{color:var(--text)!important}
-.stTabs [data-baseweb="tab-highlight"]{background:var(--accent)!important;height:1px}
+.stTabs [data-baseweb="tab-highlight"]{background:var(--text)!important;height:1px}
 .stTabs [data-baseweb="tab-border"]{display:none}
-[data-testid="stExpander"] details{background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:2px!important}
-[data-testid="stExpander"] summary,[data-testid="stExpander"] summary p,[data-testid="stExpander"] summary span{color:var(--text)!important;font-size:.85rem;font-weight:500}
-[data-testid="stVerticalBlockBorderWrapper"],[data-testid="stForm"]{border-color:var(--line)!important;border-radius:2px!important;background:var(--surface)}
-[data-testid="stMetric"]{background:var(--surface);border:1px solid var(--line);border-radius:2px;padding:14px 18px}
-[data-testid="stMetricValue"]{color:var(--text)!important;font-family:var(--serif);font-size:2rem!important}
-[data-testid="stMetricLabel"] p{color:var(--muted)!important;letter-spacing:.12em;text-transform:uppercase;font-size:.7rem!important}
-[data-testid="stCode"] pre{background:var(--bg2)!important;border-radius:2px!important;border:1px solid var(--line)}
-[data-testid="stCode"] code{color:var(--text)!important;white-space:pre-wrap!important;word-break:break-all;font-size:.78rem!important}
-[data-testid="stAlert"]{border-radius:2px!important}
-hr{border-color:var(--line)!important;margin:1.2rem 0!important}
+[data-testid="stExpander"] details{background:transparent!important;border:none!important;border-bottom:1px solid var(--line)!important;border-radius:0!important}
+[data-testid="stExpander"] summary{padding-left:0!important}
+[data-testid="stExpander"] summary,[data-testid="stExpander"] summary p,[data-testid="stExpander"] summary span{color:var(--text)!important;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;font-weight:500}
+[data-testid="stVerticalBlockBorderWrapper"],[data-testid="stForm"]{border:none!important;border-radius:0!important;background:transparent!important;padding:0!important}
+[data-testid="stMetric"]{border-top:1px solid var(--line);padding:.9rem 0}
+[data-testid="stMetricValue"]{color:var(--text)!important;font-family:var(--serif);font-size:2.2rem!important;font-weight:400}
+[data-testid="stMetricLabel"] p{color:var(--muted)!important;letter-spacing:.16em;text-transform:uppercase;font-size:.66rem!important}
+[data-testid="stCode"] pre{background:var(--bg2)!important;border-radius:0!important;border:none}
+[data-testid="stCode"] code{color:var(--text)!important;white-space:pre-wrap!important;word-break:break-all;font-size:.76rem!important}
+[data-testid="stAlert"]{border-radius:0!important}
+hr{border-color:var(--line)!important;margin:1.4rem 0!important}
 
-/* Barra superior */
-.ra-announce{margin:0 -100vw;padding:.45rem 100vw;background:var(--text);color:var(--bg);text-align:center;font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;font-weight:500}
-.ra-announce b{color:var(--accent2);font-weight:500}
-.st-key-hdr{position:sticky;top:0;z-index:999;background:var(--head);border-bottom:1px solid var(--line);margin:0!important;padding:.55rem 0}
+/* Logo */
+.ra-mark{display:block;color:var(--text);overflow:visible}
+.ra-ln{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.6s var(--slow) .15s forwards}
+.ra-ln.d2{animation-delay:.45s}.ra-ln.d3{animation-delay:.9s}.ra-ln.d4{animation-delay:.7s}
+.ra-par{opacity:0;animation:appear 1.2s var(--ease) .1s forwards}
+.ra-drop{fill:var(--accent);filter:var(--drop-glow);opacity:0;transform-box:fill-box;transform-origin:center;animation:dropIn 1s var(--ease) 1.4s forwards}
+
+/* Barra superior y cabecera */
+.ra-strip{overflow:hidden;white-space:nowrap;margin:0;border-bottom:1px solid var(--line);padding:.5rem 0;font-size:.62rem;letter-spacing:.32em;text-transform:uppercase;color:var(--muted)}
+.ra-strip div{display:inline-block;animation:marquee 46s linear infinite;will-change:transform}
+.ra-strip span{margin:0 1.6rem}
+.ra-strip i{display:inline-block;width:4px;height:4px;background:var(--accent);transform:rotate(45deg);vertical-align:middle}
+.st-key-hdr{position:sticky;top:0;z-index:999;background:var(--head);border-bottom:1px solid var(--line);margin:0!important;padding:.5rem 0}
 .st-key-hdr [data-testid="stHorizontalBlock"]{flex-wrap:nowrap!important;align-items:center;gap:.5rem!important}
 .st-key-hdr [data-testid="stColumn"]{min-width:0!important}
-.st-key-hdr .stButton button{border-color:transparent!important;min-height:2.1rem;padding:.2rem .6rem!important}
-.st-key-hdr .stButton button:hover{border-color:var(--line2)!important}
-.ra-logo{display:flex;align-items:center;justify-content:center;gap:.75rem;color:var(--accent)}
-.ra-logo-svg{width:46px;height:46px;flex-shrink:0}
-.ra-ring{stroke-dasharray:352;stroke-dashoffset:352;animation:draw 2.4s var(--slow) .2s forwards}
-.ra-word{display:flex;flex-direction:column;line-height:1}
-.ra-word b{font-family:var(--serif);font-weight:500;font-size:1.32rem;letter-spacing:.24em;color:var(--text)}
-.ra-word span{font-size:.58rem;letter-spacing:.58em;color:var(--accent);margin-top:.3rem;font-weight:500}
-.ra-hdr-note{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.st-key-hdr .stButton button{border:none!important;min-height:2.1rem;padding:.2rem .3rem!important}
+.st-key-hdr .stButton button:hover{color:var(--accent)!important}
+.ra-hlinks{display:flex;gap:1.6rem}
+.ra-hlinks a{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text)!important;text-decoration:none!important;font-weight:500;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .45s var(--ease);padding-bottom:2px}
+.ra-hlinks a:hover{background-size:100% 1px}
+.ra-logo{display:flex;flex-direction:column;align-items:center;gap:.25rem}
+.ra-logo .ra-mark{width:104px;height:42px}
+.ra-logo small{font-size:.5rem;letter-spacing:.55em;text-transform:uppercase;color:var(--muted);padding-left:.55em}
 
 /* Switch de tema */
+.st-key-theme_sw{display:flex;justify-content:flex-end}
 .st-key-theme_sw button{position:relative;width:54px!important;min-width:54px!important;height:28px!important;min-height:28px!important;padding:0!important;border-radius:999px!important;background:var(--sw-track)!important;border:1px solid var(--line2)!important;overflow:hidden}
 .st-key-theme_sw button p,.st-key-theme_sw button span{font-size:0!important;opacity:0}
-.st-key-theme_sw button::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--sw-icon) center/12px no-repeat,var(--sw-knob);box-shadow:0 2px 6px rgba(0,0,0,.22);transform:translateX(var(--sw-x));transition:transform .55s var(--slow)}
-.st-key-theme_sw button:hover{border-color:var(--accent)!important}
-.st-key-theme_sw{display:flex;justify-content:flex-end}
+.st-key-theme_sw button::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--sw-icon) center/12px no-repeat,var(--sw-knob);box-shadow:0 2px 6px rgba(0,0,0,.25);transform:translateX(var(--sw-x));transition:transform .55s var(--slow)}
 
 /* Cortina del cambio de tema */
 .ra-curtain{position:fixed;inset:0;z-index:99998;pointer-events:none;animation:curtain .95s var(--slow) forwards}
-.ra-curtain-line{position:fixed;left:0;right:0;top:0;height:1px;z-index:99999;pointer-events:none;box-shadow:0 0 18px 2px var(--accent);animation:sweep .95s var(--slow) forwards}
+.ra-curtain-line{position:fixed;left:0;right:0;top:0;height:1px;z-index:99999;pointer-events:none;box-shadow:0 0 22px 3px var(--accent);animation:sweep .95s var(--slow) forwards}
 
-/* Presentación */
-.ra-intro{display:grid;grid-template-columns:1.05fr 1fr;gap:2.5rem;align-items:center;padding:2.4rem 0 2.2rem;border-bottom:1px solid var(--line);animation:fade .9s var(--ease) both}
-.ra-owner{display:flex;gap:1.3rem;align-items:flex-start}
-.ra-sq{position:relative;flex-shrink:0;width:136px;height:136px}
-.ra-sq::before{content:"";position:absolute;inset:8px -8px -8px 8px;border:1px solid var(--accent);opacity:.55}
-.ra-sq img{position:relative;width:100%;height:100%;object-fit:cover;display:block;border-radius:2px}
-.ra-owner-body{flex:1;min-width:0}
-.ra-intro>*{min-width:0}
-.ra-kicker{font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);font-weight:500}
-.ra-owner-name{font-family:var(--serif);font-size:2.1rem;line-height:1;color:var(--text);margin:.3rem 0 .2rem;font-weight:500}
-.ra-owner-tag{font-size:.86rem;color:var(--muted);font-weight:300;margin-bottom:.9rem}
-.ra-stack{display:flex;flex-direction:column;gap:.4rem;max-width:330px}
-.ra-ct{display:flex;align-items:center;gap:.7rem;padding:.5rem .75rem;border:1px solid var(--line2);background:var(--surface);color:var(--text)!important;text-decoration:none!important;transition:border-color .35s var(--ease),transform .35s var(--ease)}
-.ra-ct .ic{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:var(--chip);color:var(--accent);flex-shrink:0;transition:background-color .35s var(--ease),color .35s var(--ease)}
-.ra-ct .ic svg{width:15px;height:15px}
-.ra-ct .tx{flex:1;min-width:0;line-height:1.2}
-.ra-ct .tx b{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;font-weight:500;color:var(--muted)}
-.ra-ct .tx span{display:block;font-size:.86rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ra-ct .go{width:14px;height:14px;color:var(--faint);transition:transform .35s var(--ease),color .35s var(--ease)}
-.ra-ct:hover{border-color:var(--accent);transform:translateX(3px)}
-.ra-ct:hover .ic{background:var(--accent);color:var(--accent-ink)}
-.ra-ct:hover .go{transform:translateX(3px);color:var(--accent)}
-.ra-manifest h2{font-family:var(--serif)!important;font-size:clamp(1.9rem,3.4vw,2.6rem)!important;line-height:1.08!important;font-weight:400!important;color:var(--text)!important;margin:0 0 .7rem!important;padding:0!important}
-.ra-manifest h2 em{color:var(--accent)}
-.ra-manifest p{color:var(--muted)!important;font-weight:300;line-height:1.7;max-width:46ch;margin-bottom:1.1rem}
-.ra-promises{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
-.ra-promises div{padding:.9rem .6rem .2rem 0;font-size:.8rem;color:var(--text);line-height:1.35}
-.ra-promises svg{width:18px;height:18px;color:var(--accent);display:block;margin-bottom:.4rem}
-.ra-promises small{display:block;color:var(--muted);font-size:.72rem;margin-top:.15rem}
+/* Hero editorial */
+.ra-hero{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:5rem;align-items:center;padding:3.6rem 0 3.4rem;animation:appear 1s var(--ease) both}
+.ra-hero>*{min-width:0}
+.ra-kick{font-size:.64rem;letter-spacing:.34em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.ra-kick b{color:var(--accent);font-weight:500}
+.ra-h1{font-family:var(--serif);font-weight:400;font-size:clamp(3.4rem,8.2vw,7.6rem);line-height:.88;letter-spacing:-.03em;color:var(--text);margin:1.1rem 0 1.6rem}
+.ra-h1 em{color:var(--accent);text-shadow:var(--glow)}
+.ra-lead{max-width:40ch;color:var(--muted);font-weight:300;font-size:1rem;line-height:1.75;margin-bottom:1.8rem}
+.ra-cta-link{display:inline-flex;align-items:center;gap:.8rem;color:var(--text)!important;text-decoration:none!important;font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;font-weight:500;padding-bottom:.4rem;border-bottom:1px solid var(--text)}
+.ra-cta-link svg{width:18px;height:18px;transition:transform .45s var(--ease)}
+.ra-cta-link:hover{color:var(--accent)!important;border-color:var(--accent)}
+.ra-cta-link:hover svg{transform:translateX(5px)}
+.ra-owner{display:flex;flex-direction:column}
+.ra-portrait{position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--bg2)}
+.ra-portrait img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1.6s var(--ease)}
+.ra-owner:hover .ra-portrait img{transform:scale(1.03)}
+.ra-owner-name{font-family:var(--serif);font-size:1.7rem;font-weight:400;line-height:1.05;color:var(--text);margin-top:1rem}
+.ra-owner-role{font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin:.35rem 0 .9rem}
+.ra-ct{display:flex;align-items:center;gap:.85rem;padding:.75rem 0;border-top:1px solid var(--line);color:var(--text)!important;text-decoration:none!important}
+.ra-ct:last-child{border-bottom:1px solid var(--line)}
+.ra-ct .ic{width:24px;height:24px;flex-shrink:0;display:block}
+.ra-ct .ic svg{width:24px;height:24px;display:block}
+.ra-ct .tx{flex:1;min-width:0;line-height:1.25}
+.ra-ct .tx b{display:block;font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;font-weight:500;color:var(--muted)}
+.ra-ct .tx span{display:block;font-size:.88rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ra-ct .go{width:16px;height:16px;color:var(--faint);transition:transform .45s var(--ease),color .3s}
+.ra-ct .go svg{width:16px;height:16px}
+.ra-ct:hover .go{transform:translateX(4px);color:var(--text)}
+.ra-ct.wa:hover .tx span{color:#1FAF54}.ra-ct.ig:hover .tx span{color:#D6249F}.ra-ct.gm:hover .tx span{color:#EA4335}
 
-/* Encabezados */
-.ra-sec{text-align:center;margin:2.6rem 0 .6rem}
-.ra-sec .k{font-size:.66rem;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);font-weight:500}
-.ra-sec .t{font-family:var(--serif);font-size:2.3rem;font-weight:400;color:var(--text);line-height:1.1;margin-top:.25rem}
-.ra-sec .s{color:var(--muted);font-size:.84rem;font-weight:300;margin-top:.3rem}
-.ra-orn{display:flex;align-items:center;justify-content:center;gap:.6rem;color:var(--accent);margin:.6rem 0 0}
-.ra-orn::before,.ra-orn::after{content:"";width:46px;height:1px;background:currentColor;opacity:.5}
-.ra-orn i{width:6px;height:6px;transform:rotate(45deg);border:1px solid currentColor}
-.ra-left{text-align:left;margin:.4rem 0}
-.ra-count{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:right;padding-top:.4rem}
+/* Banda de categorías */
+.ra-band{display:flex;justify-content:space-between;gap:1rem;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:1.1rem 0;margin-bottom:3.4rem}
+.ra-band div{flex:1;font-size:.84rem;color:var(--text);font-weight:400}
+.ra-band small{display:block;font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);margin-bottom:.3rem;font-weight:500}
 
-/* Tarjetas */
-[class*="st-key-card_"]{position:relative;gap:.55rem!important;animation:fade .7s var(--ease) both}
+/* Encabezado de sección */
+.ra-sec{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin:0 0 1.2rem}
+.ra-sec .t{font-family:var(--serif);font-size:clamp(2.2rem,4.4vw,3.4rem);font-weight:400;line-height:1;letter-spacing:-.02em;color:var(--text)}
+.ra-sec .t em{color:var(--accent);text-shadow:var(--glow)}
+.ra-sec .k{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;font-weight:500}
+.ra-sec .c{font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.ra-anchor{position:relative;top:-80px;height:0}
+
+/* Producto: tarjeta abierta, sin bordes, alturas fijas (estable) */
+[class*="st-key-grid_"]{gap:2.6rem!important}
+[class*="st-key-card_"]{position:relative;gap:.7rem!important;animation:appear .8s var(--ease) both}
 [class*="st-key-view_"]{position:absolute!important;inset:0;z-index:2;margin:0!important}
 [class*="st-key-view_"] div,[class*="st-key-view_"] button{width:100%!important;height:100%!important}
 [class*="st-key-view_"] button{opacity:0!important;cursor:pointer}
-[class*="st-key-card_"]:has(button:focus-visible){outline:1.5px solid var(--accent);outline-offset:4px}
-.ra-img{position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--bg2);border-radius:2px}
-.ra-img img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.001);transition:transform 1.4s var(--ease)}
+[class*="st-key-card_"]:has(button:focus-visible){outline:1px solid var(--accent);outline-offset:4px}
+.ra-img{position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--bg2)}
+.ra-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1.6s var(--ease)}
 .ra-img img.r{animation:inR .5s var(--ease)}
 .ra-img img.l{animation:inL .5s var(--ease)}
-[class*="st-key-card_"]:hover .ra-img img{transform:scale(1.045)}
-.ra-img.sold img{filter:grayscale(1);opacity:.75}
-.ra-badge{position:absolute;top:10px;left:10px;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;font-weight:500;padding:4px 8px;background:var(--surface);color:var(--text)}
-.ra-badge.out{background:var(--text);color:var(--bg)}
-.ra-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px}
-.ra-dots i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.55);transition:transform .4s var(--ease),background-color .4s}
-.ra-dots i.on{background:#fff;transform:scale(1.35)}
-.ra-quick{position:absolute;left:10px;right:10px;bottom:10px;padding:.55rem;text-align:center;background:var(--surface);color:var(--text);font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;font-weight:500;opacity:0;transform:translateY(8px);transition:opacity .45s var(--ease),transform .45s var(--ease)}
-[class*="st-key-card_"]:hover .ra-quick{opacity:1;transform:none}
-[class*="st-key-card_"]:hover .ra-dots{opacity:0}
-.ra-info{text-align:center;padding:0 .3rem}
-.ra-brand{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:500}
-.ra-name{font-family:var(--serif);font-size:1.22rem;font-weight:500;color:var(--text);line-height:1.15;margin:.15rem 0 .35rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ra-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-bottom:.4rem}
-.chip{display:inline-flex;align-items:center;gap:4px;font-size:.66rem;padding:2px 7px;border:1px solid var(--line2);color:var(--muted);letter-spacing:.04em;white-space:nowrap}
-.chip svg{width:10px;height:10px}
-.chip.size{border-color:var(--accent);color:var(--accent);font-weight:500}
-.ra-price{font-size:.92rem;letter-spacing:.06em;color:var(--text);font-weight:500}
+[class*="st-key-card_"]:hover .ra-img img{transform:scale(1.035)}
+.ra-img.sold img{filter:grayscale(1);opacity:.7}
+.ra-tag{position:absolute;top:12px;left:12px;font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:var(--text);background:var(--bg);padding:4px 8px}
+.ra-bars{position:absolute;left:12px;right:12px;bottom:12px;display:flex;gap:4px}
+.ra-bars i{flex:1;height:2px;background:rgba(255,255,255,.4)}
+.ra-bars i.on{background:rgba(255,255,255,.95)}
+.ra-info{padding:0 1px}
+.ra-name{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ra-meta{font-size:.76rem;color:var(--muted);margin:.25rem 0 .35rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:300;height:1.15em}
+.ra-price{font-size:.84rem;color:var(--text);font-weight:400;letter-spacing:.03em}
 
-/* Flechas del carrusel */
-[class*="st-key-arw_"],[class*="st-key-garw_"]{position:relative;z-index:3;margin-top:-3.25rem!important;padding:0 .6rem;pointer-events:none}
-[class*="st-key-garw_"]{margin-top:-3.9rem!important;padding:0 .9rem}
+/* Flechas del carrusel: superpuestas, no mueven nada */
+[class*="st-key-arw_"],[class*="st-key-garw_"]{position:relative;z-index:3;margin-top:-4.1rem!important;padding:0 .6rem;pointer-events:none;height:2.4rem}
+[class*="st-key-garw_"]{margin-top:-4.6rem!important;padding:0 1rem;height:2.8rem}
 :is([class*="st-key-arw_"],[class*="st-key-garw_"]) [data-testid="stHorizontalBlock"]{flex-wrap:nowrap!important;justify-content:space-between!important}
 :is([class*="st-key-arw_"],[class*="st-key-garw_"]) [data-testid="stColumn"]{width:auto!important;flex:0 0 auto!important;min-width:0!important}
-:is([class*="st-key-arw_"],[class*="st-key-garw_"]) button{pointer-events:auto;width:30px!important;height:30px!important;min-height:30px!important;padding:0!important;border-radius:50%!important;background:rgba(255,253,248,.92)!important;color:#1C1813!important;border:none!important;opacity:0;transform:scale(.85)}
-:is([class*="st-key-arw_"],[class*="st-key-garw_"]) button p,:is([class*="st-key-arw_"],[class*="st-key-garw_"]) button span{color:#1C1813!important}
-[class*="st-key-card_"]:hover [class*="st-key-arw_"] button,[class*="st-key-garw_"] button{opacity:1;transform:none}
-[class*="st-key-garw_"] button{width:40px!important;height:40px!important;min-height:40px!important}
-:is([class*="st-key-arw_"],[class*="st-key-garw_"]) button:hover{background:#fff!important;transform:scale(1.08)!important}
-[class*="st-key-card_"]:hover [class*="st-key-arw_"]{margin-top:-5.6rem!important}
-@media (hover:none){[class*="st-key-arw_"] button{opacity:1;transform:none}.ra-quick{display:none}}
+:is([class*="st-key-arw_"],[class*="st-key-garw_"]) button{pointer-events:auto;width:30px!important;height:30px!important;min-height:30px!important;padding:0!important;border-radius:50%!important;background:rgba(255,255,255,.9)!important;color:#0B0B0B!important;border:none!important;opacity:0;transition:opacity .35s var(--ease)!important}
+:is([class*="st-key-arw_"],[class*="st-key-garw_"]) button p,:is([class*="st-key-arw_"],[class*="st-key-garw_"]) button span{color:#0B0B0B!important}
+[class*="st-key-card_"]:hover [class*="st-key-arw_"] button,[class*="st-key-garw_"] button{opacity:1}
+[class*="st-key-garw_"] button{width:38px!important;height:38px!important;min-height:38px!important}
+@media (hover:none){[class*="st-key-arw_"] button{opacity:1}}
 
 /* Ficha de producto */
-.ra-crumb{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:1.2rem 0 .2rem}
+.ra-crumb{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin:1.6rem 0 1rem}
 .ra-crumb b{color:var(--text);font-weight:500}
 .ra-thumbs{display:flex;gap:6px;margin-top:.6rem;overflow-x:auto}
-.ra-thumbs img{width:54px;height:68px;object-fit:cover;opacity:.45;border:1px solid transparent;flex-shrink:0;transition:opacity .35s var(--ease)}
-.ra-thumbs img.on{opacity:1;border-color:var(--accent)}
-.ra-d{animation:fade .7s var(--ease) both}
-.ra-d-brand{font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);font-weight:500}
-.ra-d-name{font-family:var(--serif);font-size:clamp(2.1rem,3.8vw,2.9rem);font-weight:400;line-height:1.03;color:var(--text);margin:.3rem 0 .7rem}
-.ra-d-price{display:flex;align-items:center;gap:.9rem;margin-bottom:.9rem}
-.ra-d-price b{font-size:1.35rem;letter-spacing:.04em;font-weight:500;color:var(--text)}
-.ra-pill{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;font-weight:500;padding:4px 9px;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);color:var(--muted)}
-.ra-pill.ok{color:var(--ok);border-color:currentColor}
-.ra-pill.ok::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
-.ra-d .ra-chips{justify-content:flex-start}
-.ra-d-short{color:var(--muted);font-size:.95rem;font-weight:300;line-height:1.7;margin:.6rem 0 1.2rem;max-width:50ch}
-.ra-cta{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;padding:.95rem 1rem;background:var(--text);color:var(--bg)!important;font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;font-weight:500;text-decoration:none!important;transition:background-color .4s var(--ease)}
-.ra-cta svg{width:16px;height:16px}
-.ra-cta::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.22) 50%,transparent 60%);transform:translateX(-110%);transition:transform 1.1s var(--ease)}
-.ra-cta:hover{background:var(--accent);color:var(--accent-ink)!important}
-.ra-cta:hover::after{transform:translateX(110%)}
-.ra-cta-row{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin-top:.45rem}
-.ra-cta.ghost{background:transparent;color:var(--text)!important;border:1px solid var(--line2);padding:.75rem .8rem}
-.ra-cta.ghost:hover{border-color:var(--accent);color:var(--accent)!important;background:transparent}
-.ra-specs{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line);margin:1.4rem 0}
-.ra-specs div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:.7rem .8rem}
-.ra-specs small{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;margin-bottom:3px}
-.ra-specs small svg{width:11px;height:11px;color:var(--accent)}
-.ra-specs span{color:var(--text);font-size:.88rem}
-.ra-desc h4{font-family:var(--sans)!important;font-size:.66rem!important;letter-spacing:.22em;text-transform:uppercase;font-weight:500!important;color:var(--accent)!important;margin:.6rem 0 .4rem!important;padding:0!important}
-.ra-desc p{color:var(--text)!important;font-weight:300;line-height:1.8;font-size:.93rem;max-width:62ch}
+.ra-thumbs img{width:56px;height:75px;object-fit:cover;opacity:.4;flex-shrink:0;transition:opacity .35s var(--ease)}
+.ra-thumbs img.on{opacity:1}
+.ra-d{animation:appear .7s var(--ease) both;padding-top:.4rem}
+.ra-d-brand{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);font-weight:500}
+.ra-d-name{font-family:var(--serif);font-size:clamp(2.2rem,3.8vw,3.2rem);font-weight:400;line-height:1;letter-spacing:-.02em;color:var(--text);margin:.5rem 0 .9rem}
+.ra-d-price{display:flex;align-items:center;gap:1.1rem;margin-bottom:1rem}
+.ra-d-price b{font-size:1.15rem;font-weight:400;letter-spacing:.04em;color:var(--text)}
+.ra-st{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;font-weight:500;display:inline-flex;align-items:center;gap:7px;color:var(--muted)}
+.ra-st.ok{color:var(--ok)}
+.ra-st::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.ra-d-short{color:var(--muted);font-size:.95rem;font-weight:300;line-height:1.75;margin:0 0 1.5rem;max-width:46ch}
+.ra-buy{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;padding:1rem;background:var(--text);color:var(--bg)!important;font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;font-weight:500;text-decoration:none!important;transition:background-color .35s var(--ease)}
+.ra-buy:hover{background:var(--accent);color:var(--accent-ink)!important}
+.ra-buy-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.5rem}
+.ra-alt{display:flex;align-items:center;justify-content:center;gap:.55rem;padding:.8rem;border:1px solid var(--line2);color:var(--text)!important;text-decoration:none!important;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;font-weight:500;transition:border-color .3s var(--ease)}
+.ra-alt svg{width:18px;height:18px}
+.ra-alt:hover{border-color:var(--text)}
+.ra-dl{margin:1.8rem 0 1.2rem;border-top:1px solid var(--line)}
+.ra-dl div{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.7rem 0;border-bottom:1px solid var(--line);font-size:.86rem}
+.ra-dl dt,.ra-dl span:first-child{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.ra-dl span:last-child{color:var(--text);text-align:right}
+.ra-desc h4{font-family:var(--sans)!important;font-size:.62rem!important;letter-spacing:.26em;text-transform:uppercase;font-weight:500!important;color:var(--muted)!important;margin:1.2rem 0 .5rem!important;padding:0!important}
+.ra-desc p{color:var(--text)!important;font-weight:300;line-height:1.85;font-size:.94rem;max-width:60ch}
 .ra-desc ul{list-style:none;padding:0;margin:0}
-.ra-desc li{padding:.45rem 0;border-bottom:1px solid var(--line);font-size:.88rem;display:flex;gap:.7rem}
-.ra-desc li::before{content:"";width:5px;height:5px;margin-top:.55rem;transform:rotate(45deg);border:1px solid var(--accent);flex-shrink:0}
+.ra-desc li{padding:.3rem 0;font-size:.9rem;display:flex;gap:.8rem;font-weight:300}
+.ra-desc li::before{content:"—";color:var(--accent)}
 
 /* Cómo comprar */
-.ra-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:1rem}
-.ra-step{padding:1.4rem 1.2rem;border-right:1px solid var(--line)}
-.ra-step:last-child{border-right:none}
-.ra-step .n{font-family:var(--serif);font-size:2.2rem;color:var(--accent);line-height:1;font-style:italic}
-.ra-step b{display:block;font-weight:500;font-size:.95rem;color:var(--text);margin:.4rem 0 .2rem}
-.ra-step span{font-size:.84rem;color:var(--muted);font-weight:300;line-height:1.55}
+.ra-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:3rem;margin:1.4rem 0 1rem}
+.ra-step .n{font-family:var(--serif);font-style:italic;font-size:3.2rem;line-height:1;color:var(--accent);text-shadow:var(--glow)}
+.ra-step b{display:block;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;font-weight:500;color:var(--text);margin:.9rem 0 .4rem}
+.ra-step span{font-size:.9rem;color:var(--muted);font-weight:300;line-height:1.7}
 
-/* Perfiles, listas, tablas */
-.ra-prof{display:flex;gap:1.1rem;align-items:center;flex-wrap:wrap;border:1px solid var(--line);background:var(--surface);padding:1.1rem 1.2rem;margin:1rem 0;animation:fade .6s var(--ease) both}
-.ra-prof>img{width:68px;height:68px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 3px var(--surface),0 0 0 4px var(--accent)}
-.ra-prof .n{font-family:var(--serif);font-size:1.75rem;line-height:1.05;color:var(--text)}
-.ra-prof .d{color:var(--muted);font-size:.8rem;margin-top:.3rem;display:flex;gap:.9rem;flex-wrap:wrap}
+/* Perfiles, listas, tablas (abiertos) */
+.ra-prof{display:flex;gap:1.3rem;align-items:center;flex-wrap:wrap;padding:1.6rem 0;border-bottom:1px solid var(--line);margin-bottom:1rem;animation:appear .6s var(--ease) both}
+.ra-prof>img{width:76px;height:76px;border-radius:50%;object-fit:cover}
+.ra-prof .n{font-family:var(--serif);font-size:2.1rem;line-height:1;color:var(--text);font-weight:400}
+.ra-prof .d{color:var(--muted);font-size:.8rem;margin-top:.45rem;display:flex;gap:1.1rem;flex-wrap:wrap}
 .ra-prof .d span{display:inline-flex;align-items:center;gap:5px}
-.ra-prof .d svg{width:13px;height:13px;color:var(--accent)}
-.ra-prof .k{display:flex;gap:1.6rem;margin-left:auto}
+.ra-prof .d svg{width:13px;height:13px}
+.ra-prof .k{display:flex;gap:2.2rem;margin-left:auto}
 .ra-prof .k div{text-align:right}
-.ra-prof .k b{display:block;font-family:var(--serif);font-size:1.5rem;color:var(--text);font-weight:500}
-.ra-prof .k small{color:var(--muted);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase}
-.ra-row{display:flex;align-items:center;gap:.8rem;padding:.55rem;border:1px solid var(--line);background:var(--surface)}
-.ra-row img{width:42px;height:52px;object-fit:cover;flex-shrink:0}
+.ra-prof .k b{display:block;font-family:var(--serif);font-size:1.8rem;color:var(--text);font-weight:400}
+.ra-prof .k small{color:var(--muted);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase}
+.ra-row{display:flex;align-items:center;gap:1rem;padding:.7rem 0;border-bottom:1px solid var(--line)}
+.ra-row img{width:46px;height:60px;object-fit:cover;flex-shrink:0}
 .ra-row .m{flex:1;min-width:0}
-.ra-row .m b{display:block;color:var(--text);font-weight:500;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ra-row .m small{color:var(--muted);font-size:.76rem}
-.ra-row .v{font-weight:500;color:var(--text);font-size:.9rem;white-space:nowrap}
-.ra-row.flat{border:none;padding:0;background:none}
-.ra-table-wrap{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
+.ra-row .m b{display:block;color:var(--text);font-weight:500;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ra-row .m small{color:var(--muted);font-size:.78rem}
+.ra-row .v{color:var(--text);font-size:.88rem;white-space:nowrap}
+.ra-row.flat{border:none;padding:0}
+.st-key-admrow{border-bottom:1px solid var(--line);padding:.4rem 0 .8rem}
+[class*="st-key-adm_"]{border-bottom:1px solid var(--line);padding:.3rem 0 .7rem}
+.ra-table-wrap{overflow-x:auto}
 .ra-table{width:100%;border-collapse:collapse;font-size:.84rem}
-.ra-table th{text-align:left;color:var(--muted);font-weight:500;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;padding:.7rem .8rem;border-bottom:1px solid var(--line);white-space:nowrap}
-.ra-table td{padding:.55rem .8rem;border-bottom:1px solid var(--line);color:var(--text);white-space:nowrap}
-.ra-table tr:last-child td{border-bottom:none}
-.ra-table tbody tr:hover td{background:var(--chip)}
-.ra-table img{width:24px;height:24px;border-radius:50%;vertical-align:middle;margin-right:6px;object-fit:cover}
-.ra-podium{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin:.6rem 0 1rem}
-.ra-pod{border:1px solid var(--line);background:var(--surface);padding:.9rem;display:flex;align-items:center;gap:.8rem}
-.ra-pod.first{border-color:var(--accent)}
-.ra-pod img{width:42px;height:42px;border-radius:50%;object-fit:cover}
-.ra-pod .p{font-family:var(--serif);font-style:italic;font-size:1.8rem;color:var(--accent);width:1.2rem}
-.ra-pod b{display:block;color:var(--text);font-size:.9rem;font-weight:500}
-.ra-pod small{color:var(--muted);font-size:.74rem}
-.st-key-authbox{border:1px solid var(--line);background:var(--surface);padding:1.6rem 1.5rem 1.3rem;margin-top:2rem;animation:fade .6s var(--ease) both}
-.ra-auth{text-align:center;color:var(--accent)}
-.ra-auth .ra-logo-svg{width:54px;height:54px}
-.ra-auth h3{font-family:var(--serif)!important;font-size:2rem!important;font-weight:400!important;color:var(--text)!important;margin:.3rem 0 .1rem!important;padding:0!important}
-.ra-auth p{color:var(--muted)!important;font-size:.85rem;font-weight:300}
-.ra-avprev{display:flex;align-items:center;gap:.6rem;margin:-.2rem 0 .3rem}
-.ra-avprev img{width:40px;height:40px;border-radius:50%;box-shadow:0 0 0 1px var(--line2)}
+.ra-table th{text-align:left;color:var(--muted);font-weight:500;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;padding:.7rem .6rem .7rem 0;border-bottom:1px solid var(--line2);white-space:nowrap}
+.ra-table td{padding:.65rem .6rem .65rem 0;border-bottom:1px solid var(--line);color:var(--text);white-space:nowrap;font-weight:300}
+.ra-table img{width:24px;height:24px;border-radius:50%;vertical-align:middle;margin-right:8px;object-fit:cover}
+.ra-podium{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin:.8rem 0 1.6rem}
+.ra-pod{display:flex;align-items:center;gap:.9rem}
+.ra-pod img{width:46px;height:46px;border-radius:50%;object-fit:cover}
+.ra-pod .p{font-family:var(--serif);font-style:italic;font-size:2.4rem;color:var(--accent);line-height:1;text-shadow:var(--glow)}
+.ra-pod b{display:block;color:var(--text);font-size:.88rem;font-weight:500}
+.ra-pod small{color:var(--muted);font-size:.76rem}
+.st-key-authbox{padding:2.6rem 0 1rem;animation:appear .6s var(--ease) both}
+.ra-auth{text-align:center;margin-bottom:.8rem}
+.ra-auth .ra-mark{width:120px;height:48px;margin:0 auto}
+.ra-auth h3{font-family:var(--serif)!important;font-size:2.4rem!important;font-weight:400!important;color:var(--text)!important;margin:1rem 0 .2rem!important;padding:0!important}
+.ra-auth p{color:var(--muted)!important;font-size:.88rem;font-weight:300}
+.ra-avprev{display:flex;align-items:center;gap:.7rem;margin:-.2rem 0 .3rem}
+.ra-avprev img{width:40px;height:40px;border-radius:50%}
 .ra-avprev span{color:var(--muted);font-size:.8rem}
-.ra-empty{text-align:center;padding:2.6rem 1rem;color:var(--muted);border:1px dashed var(--line2);font-size:.88rem;font-weight:300}
-.ra-empty b{display:block;font-family:var(--serif);font-size:1.5rem;color:var(--text);font-weight:400;margin-bottom:.2rem}
-.ra-ownerset{display:flex;align-items:center;gap:.9rem}
-.ra-ownerset img{width:60px;height:60px;object-fit:cover}
-.ra-note{color:var(--muted);font-size:.84rem;font-weight:300}
+.ra-empty{text-align:center;padding:3.4rem 1rem;color:var(--muted);font-size:.9rem;font-weight:300}
+.ra-empty b{display:block;font-family:var(--serif);font-size:1.8rem;color:var(--text);font-weight:400;margin-bottom:.3rem}
+.ra-ownerset{display:flex;align-items:center;gap:1rem}
+.ra-ownerset img{width:64px;height:80px;object-fit:cover}
+.ra-note{color:var(--muted);font-size:.86rem;font-weight:300}
 
 /* Botón flotante de WhatsApp */
-.ra-float{position:fixed;right:22px;bottom:22px;z-index:998;display:flex;align-items:center;gap:0;height:50px;padding:0 15px;border-radius:999px;background:var(--text);color:var(--bg)!important;text-decoration:none!important;box-shadow:0 12px 30px -12px var(--shadow);transition:gap .45s var(--ease),background-color .35s var(--ease);animation:fade 1s var(--ease) 1s both}
-.ra-float svg{width:20px;height:20px;flex-shrink:0}
-.ra-float span{max-width:0;overflow:hidden;white-space:nowrap;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;font-weight:500;transition:max-width .45s var(--ease)}
-.ra-float:hover{gap:.6rem;background:var(--accent);color:var(--accent-ink)!important}
+.ra-float{position:fixed;right:24px;bottom:24px;z-index:998;display:flex;align-items:center;height:54px;padding:0 16px;border-radius:999px;background:#25D366;color:#fff!important;text-decoration:none!important;box-shadow:0 10px 28px -10px rgba(37,211,102,.7);transition:gap .45s var(--ease);gap:0}
+.ra-float svg{width:22px;height:22px;flex-shrink:0}
+.ra-float span{max-width:0;overflow:hidden;white-space:nowrap;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;transition:max-width .45s var(--ease)}
+.ra-float:hover{gap:.6rem}
 .ra-float:hover span{max-width:160px}
 
 /* Pie de página */
-.ra-foot{margin:3.5rem -100vw 0;padding:2.6rem 100vw 1.2rem;background:var(--bg2);border-top:1px solid var(--line)}
-.ra-foot-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:2rem;max-width:1160px;margin:0 auto}
-.ra-foot .ra-logo{justify-content:flex-start}
-.ra-foot p{color:var(--muted)!important;font-size:.84rem;font-weight:300;margin-top:.8rem;max-width:34ch}
-.ra-foot h5{font-family:var(--sans)!important;font-size:.64rem!important;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)!important;font-weight:500!important;margin:0 0 .7rem!important;padding:0!important}
-.ra-foot a.l{display:flex;align-items:center;gap:.5rem;color:var(--text)!important;text-decoration:none!important;font-size:.86rem;padding:.25rem 0;transition:color .3s var(--ease)}
-.ra-foot a.l svg{width:14px;height:14px;color:var(--accent)}
+.ra-foot{margin:5rem 0 0;padding:3.6rem 0 1.6rem;border-top:1px solid var(--line)}
+.ra-foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:3rem;max-width:1280px;margin:0 auto}
+.ra-foot .ra-mark{width:150px;height:60px}
+.ra-foot .bm{font-size:.56rem;letter-spacing:.5em;text-transform:uppercase;color:var(--muted);margin-top:.6rem}
+.ra-foot p{color:var(--muted)!important;font-size:.86rem;font-weight:300;margin-top:1rem;max-width:34ch;line-height:1.7}
+.ra-foot h5{font-family:var(--sans)!important;font-size:.6rem!important;letter-spacing:.28em;text-transform:uppercase;color:var(--muted)!important;font-weight:500!important;margin:0 0 1rem!important;padding:0!important}
+.ra-foot a.l{display:flex;align-items:center;gap:.65rem;color:var(--text)!important;text-decoration:none!important;font-size:.88rem;padding:.35rem 0;font-weight:300}
+.ra-foot a.l svg{width:18px;height:18px;flex-shrink:0}
 .ra-foot a.l:hover{color:var(--accent)!important}
-.ra-foot .li{font-size:.86rem;color:var(--text);padding:.25rem 0;font-weight:300}
-.ra-copy{max-width:1160px;margin:2rem auto 0;padding-top:1rem;border-top:1px solid var(--line);text-align:center;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.ra-foot .li{font-size:.88rem;color:var(--text);padding:.35rem 0;font-weight:300}
+.ra-copy{max-width:1280px;margin:3rem auto 0;padding-top:1.2rem;border-top:1px solid var(--line);text-align:center;font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
 
-@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-@keyframes inR{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
-@keyframes inL{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:none}}
+@keyframes appear{from{opacity:0}to{opacity:1}}
+@keyframes inR{from{opacity:.2;transform:translateX(14px)}to{opacity:1;transform:none}}
+@keyframes inL{from{opacity:.2;transform:translateX(-14px)}to{opacity:1;transform:none}}
 @keyframes draw{to{stroke-dashoffset:0}}
+@keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @keyframes curtain{0%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(100% 0 0 0)}}
 @keyframes sweep{0%{transform:translateY(0);opacity:1}92%{opacity:1}100%{transform:translateY(100vh);opacity:0}}
 
 /* Celular */
 @media (max-width:760px){
  html{font-size:14px}
- .block-container,[data-testid="stMainBlockContainer"]{padding:0 .8rem 1.5rem!important}
+ .block-container,[data-testid="stMainBlockContainer"]{padding:0 1rem!important}
  .st-key-hdr [data-testid="stColumn"]:nth-child(2){flex:1 1 auto!important;width:auto!important}
  .st-key-hdr [data-testid="stColumn"]:not(:nth-child(2)){flex:0 0 auto!important;width:auto!important}
- .ra-hdr-note{display:none}
- .ra-logo-svg{width:38px;height:38px}
- .ra-word b{font-size:.92rem;letter-spacing:.12em;white-space:nowrap}
- .ra-word span{letter-spacing:.42em}
- .ra-intro{grid-template-columns:1fr;gap:1.6rem;padding:1.6rem 0}
- .ra-owner{display:grid;grid-template-columns:96px minmax(0,1fr);column-gap:1rem;align-items:start}
- .ra-owner-body{display:contents}
- .ra-sq{width:96px;height:96px;grid-row:1/4;grid-column:1}
- .ra-kicker,.ra-owner-name,.ra-owner-tag{grid-column:2}
- .ra-owner-name{font-size:1.6rem}
- .ra-owner-tag{margin-bottom:0}
- .ra-stack{grid-column:1/-1;max-width:none;margin-top:1.1rem;min-width:0}
- .ra-manifest h2{font-size:1.7rem!important}
- .ra-promises{grid-template-columns:1fr 1fr 1fr}
- [class*="st-key-grid_"]{gap:1.4rem!important}
- [class*="st-key-grid_"] [data-testid="stHorizontalBlock"]{flex-wrap:wrap!important;gap:1.4rem .6rem!important}
- [class*="st-key-grid_"] [data-testid="stColumn"]{flex:1 1 calc(50% - .3rem)!important;min-width:calc(50% - .3rem)!important;width:calc(50% - .3rem)!important}
- .ra-specs{grid-template-columns:1fr 1fr}
- .ra-steps{grid-template-columns:1fr}
- .ra-step{border-right:none;border-bottom:1px solid var(--line)}
- .ra-step:last-child{border-bottom:none}
+ .ra-hlinks{display:none}
+ .ra-logo .ra-mark{width:86px;height:35px}
+ .ra-hero{grid-template-columns:1fr;gap:2.4rem;padding:2.4rem 0 2.4rem}
+ .ra-owner{display:grid;grid-template-columns:110px minmax(0,1fr);column-gap:1.1rem}
+ .ra-portrait{grid-row:1/3}
+ .ra-owner-name{margin-top:0;align-self:end}
+ .ra-owner-role{align-self:start}
+ .ra-stack{grid-column:1/-1;margin-top:1rem}
+ .ra-band{flex-wrap:wrap}
+ .ra-band div{flex:1 1 45%}
+ [class*="st-key-grid_"]{gap:1.8rem!important}
+ [class*="st-key-grid_"] [data-testid="stHorizontalBlock"]{flex-wrap:wrap!important;gap:1.8rem .7rem!important}
+ [class*="st-key-grid_"] [data-testid="stColumn"]{flex:1 1 calc(50% - .35rem)!important;min-width:calc(50% - .35rem)!important;width:calc(50% - .35rem)!important}
+ .ra-sec{flex-direction:column;align-items:flex-start}
+ .ra-steps{grid-template-columns:1fr;gap:1.8rem}
  .ra-prof .k{margin-left:0}
- .ra-podium{grid-template-columns:1fr}
- .ra-foot-grid{grid-template-columns:1fr;gap:1.4rem}
- .ra-float{right:14px;bottom:14px}
+ .ra-podium{grid-template-columns:1fr;gap:1rem}
+ .ra-foot{margin:4rem 0 0;padding:3rem 0 1.4rem}
+ .ra-foot-grid{grid-template-columns:1fr;gap:2rem}
+ .ra-float{right:16px;bottom:16px;height:50px;padding:0 14px}
 }
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.ra-ln{stroke-dashoffset:0}.ra-par,.ra-drop{opacity:1}}
 """
 
 
@@ -825,7 +831,7 @@ def inject_css():
     root = ":root{" + "".join(f"--{k}:{val};" for k, val in v.items()) + "}"
     html(f"<style>{root}{CSS}</style>")
     old = ss.pop("_curtain", None)
-    if old:  # cortina con el color del tema anterior que se levanta, con una línea de luz
+    if old:  # cortina con el tema anterior que se levanta, con una línea de luz
         n = uuid.uuid4().hex[:6]
         html(f'<div class="ra-curtain" data-n="{n}" style="background:{THEMES[old]["bg"]}"></div>'
              f'<div class="ra-curtain-line" data-n="{n}" style="background:{v["accent"]}"></div>')
@@ -847,100 +853,86 @@ def scroll_top():
             components.html(code, height=0)
 
 
-def logo_html() -> str:
-    return (f'<div class="ra-logo">{LOGO}<div class="ra-word"><b>RISSOS ANGHELL</b>'
-            '<span>STORE</span></div></div>')
-
-
 def render_header(db, view):
-    html('<div class="ra-announce">Entregas coordinadas en <b>Santiago</b> · '
-         'Consultas por WhatsApp, Instagram o correo</div>')
+    words = ["Perfumes", "Ropa", "Accesorios", "Figuras", "Tecnología", "Entregas en Santiago", "Piezas revisadas"]
+    run = "".join(f"<span>{w}</span><i></i>" for w in words)
+    html(f'<div class="ra-strip"><div>{run}{run}</div></div>')
     with st.container(key="hdr"):
-        left, mid, right = st.columns([1, 1.6, 1], vertical_alignment="center")
+        left, mid, right = st.columns([1.2, 1, 1.2], vertical_alignment="center")
         with left:
             if view == "home":
-                html(f'<div class="ra-hdr-note">{esc(OWNER["city"])}</div>')
-            elif st.button("Tienda", key="nav_shop", icon=":material/arrow_back:"):
+                html('<nav class="ra-hlinks"><a href="#coleccion">Colección</a>'
+                     '<a href="#comprar">Cómo comprar</a><a href="#contacto">Contacto</a></nav>')
+            elif st.button("Tienda", key="nav_shop", icon=":material/west:"):
                 go("home")
-        mid.markdown(logo_html(), unsafe_allow_html=True)
+        mid.markdown(f'<div class="ra-logo">{LOGO}<small>Rissos Anghell Store</small></div>',
+                     unsafe_allow_html=True)
         with right:
-            r1, r2 = st.columns([1, 1.5], vertical_alignment="center", gap="small")
+            r1, r2 = st.columns([1, 1.2], vertical_alignment="center", gap="small")
             r1.button("Tema", key="theme_sw", on_click=_toggle_theme,
                       help="Tema oscuro" if ss.theme == "light" else "Tema claro")
             with r2:
                 u = current_user(db)
                 if u:
-                    if st.button(u["name"].split()[0], key="nav_acc", icon=":material/person:",
-                                 use_container_width=True):
-                        go("profile")
+                    label, icon, target = u["name"].split()[0], ":material/person:", "profile"
                 elif ss.role == "admin":
-                    if st.button("Panel", key="nav_acc", icon=":material/admin_panel_settings:",
-                                 use_container_width=True):
-                        go("admin")
-                elif st.button("Ingresar", key="nav_acc", icon=":material/person:", use_container_width=True):
-                    go("login")
+                    label, icon, target = "Panel", ":material/tune:", "admin"
+                else:
+                    label, icon, target = "Ingresar", ":material/person:", "login"
+                if st.button(label, key="nav_acc", icon=icon, use_container_width=True):
+                    go(target)
 
 
-def contact_stack_html() -> str:
+def contacts_html() -> str:
     mail = mailto("Contacto – Rissos Anghell Store", "Hola Benjamín,\n\n")
     wa = wa_link("Hola Benjamín, te escribo desde Rissos Anghell Store.")
-    rows = [("wa", wa, "whatsapp", "WhatsApp", OWNER["whatsapp_display"], True),
-            ("ig", IG_LINK, "instagram", "Instagram", "@" + OWNER["instagram"], True),
-            ("ml", mail, "mail", "Correo electrónico", OWNER["email"], False)]
+    rows = [("wa", wa, BRAND["whatsapp"], "WhatsApp", OWNER["whatsapp_display"], True),
+            ("ig", IG_LINK, BRAND["instagram"], "Instagram", "@" + OWNER["instagram"], True),
+            ("gm", mail, BRAND["gmail"], "Correo", OWNER["email"], False)]
     return '<div class="ra-stack">' + "".join(
-        f'<a class="ra-ct" href="{href}"{" target=_blank rel=noopener" if blank else ""}>'
-        f'<span class="ic">{ICON[ic]}</span><span class="tx"><b>{lb}</b><span>{esc(val)}</span></span>'
-        f'<span class="go">{ICON["arrow"]}</span></a>'
-        for _, href, ic, lb, val, blank in rows) + "</div>"
+        f'<a class="ra-ct {cls}" href="{href}"{" target=_blank rel=noopener" if blank else ""}>'
+        f'<span class="ic">{icon}</span><span class="tx"><b>{lb}</b><span>{esc(val)}</span></span>'
+        f'<span class="go">{ICON["arrow"]}</span></a>' for cls, href, icon, lb, val, blank in rows) + "</div>"
 
 
-def render_intro():
-    html('<section class="ra-intro">'
-         '<div class="ra-owner">'
-         f'<div class="ra-sq"><img src="{owner_photo()}" alt="{esc(OWNER["name"])}"/></div>'
-         '<div class="ra-owner-body"><div class="ra-kicker">Tienda de</div>'
+def render_hero(db):
+    avail = sum(1 for p in db["products"] if p["status"] == "Disponible")
+    html('<section class="ra-hero">'
+         '<div><div class="ra-kick">Tienda independiente · <b>Santiago</b></div>'
+         '<div class="ra-h1">Rissos<br><em>Anghell</em></div>'
+         '<div class="ra-lead">Perfumes de nicho, ropa y piezas de colección elegidas una por una. '
+         'Cada ficha muestra su talla, origen y estado reales.</div>'
+         f'<a class="ra-cta-link" href="#coleccion">Ver la colección · {avail} disponibles {ICON["arrow"]}</a></div>'
+         '<div class="ra-owner" id="contacto">'
+         f'<div class="ra-portrait"><img src="{owner_photo()}" alt="{esc(OWNER["name"])}"/></div>'
          f'<div class="ra-owner-name">{esc(OWNER["name"])}</div>'
-         f'<div class="ra-owner-tag">{esc(OWNER["tagline"])}</div>{contact_stack_html()}</div></div>'
-         '<div class="ra-manifest"><h2>Piezas elegidas con calma, <em>revisadas una por una.</em></h2>'
-         '<p>Perfumes, ropa y artículos de colección. Cada publicación muestra su talla, origen y estado '
-         'reales, para que sepas exactamente lo que recibes.</p>'
-         '<div class="ra-promises">'
-         f'<div>{ICON["check"]}Originales<small>Estado real en cada ficha</small></div>'
-         f'<div>{ICON["truck"]}Entrega coordinada<small>En Santiago</small></div>'
-         f'<div>{ICON["chat"]}Respuesta rápida<small>Por tu canal favorito</small></div>'
-         '</div></div></section>')
+         f'<div class="ra-owner-role">{esc(OWNER["role"])}</div>{contacts_html()}</div>'
+         '</section>'
+         '<div class="ra-band">'
+         '<div><small>Originales</small>Estado real en cada ficha</div>'
+         '<div><small>Entrega</small>Coordinada en Santiago</div>'
+         '<div><small>Pago</small>Al recibir o transferencia</div>'
+         '<div><small>Respuesta</small>Por tu canal favorito</div></div>')
 
 
-def section(kicker: str, title: str, sub: str = "", left: bool = False):
-    html(f'<div class="ra-sec{" ra-left" if left else ""}">'
-         + (f'<div class="k">{kicker}</div>' if kicker else "")
-         + f'<div class="t">{title}</div>' + (f'<div class="s">{sub}</div>' if sub else "")
-         + ("" if left else '<div class="ra-orn"><i></i></div>') + "</div>")
+def section(title: str, kicker: str = "", right: str = "", anchor: str = ""):
+    html((f'<div class="ra-anchor" id="{anchor}"></div>' if anchor else "")
+         + f'<div class="ra-sec"><div>{f"<div class=k>{kicker}</div>" if kicker else ""}'
+         f'<div class="t">{title}</div></div><div class="c">{right}</div></div>')
 
 
 def empty(title: str, text: str):
     html(f'<div class="ra-empty"><b>{esc(title)}</b>{esc(text)}</div>')
 
 
-def chips_html(p, with_brand=False) -> str:
-    out = ""
-    if p.get("size"):
-        out += f'<span class="chip size">{esc(size_label(p))}</span>'
-    if p.get("made_in"):
-        out += f'<span class="chip">{ICON["globe"]}Made in {esc(p["made_in"])}</span>'
-    if with_brand and p.get("condition"):
-        out += f'<span class="chip">{esc(p["condition"])}</span>'
-    return out
-
-
 def card_image_html(p, idx: int, d: str, big: bool = False) -> str:
     imgs = p.get("images") or ["demo:bag:0"]
     sold = p["status"] != "Disponible"
-    badge = f'<span class="ra-badge out">{esc(p["status"])}</span>' if sold else ""
-    dots = "".join(f'<i class="{"on" if i == idx else ""}"></i>' for i in range(len(imgs))) if len(imgs) > 1 else ""
-    quick = "" if big else '<div class="ra-quick">Ver detalle</div>'
+    tag = f'<span class="ra-tag">{esc(p["status"])}</span>' if sold else ""
+    bars = ('<div class="ra-bars">' + "".join(f'<i class="{"on" if i == idx else ""}"></i>' for i in range(len(imgs)))
+            + "</div>") if len(imgs) > 1 else ""
     return (f'<div class="ra-img{" sold" if sold else ""}"><img class="{d}" src="{img_src(imgs[idx], thumb=not big)}" '
-            f'alt="{esc(p["name"])}"/>{badge}<div class="ra-dots">{dots}</div>{quick}</div>')
+            f'alt="{esc(p["name"])}"/>{tag}{bars}</div>')
 
 
 def _step(prefix: str, pid: str, n: int, delta: int):
@@ -958,7 +950,7 @@ def carousel_arrows(prefix: str, ckey: str, pid: str, n: int):
 
 @st.fragment
 def product_card(p, scope: str = "h"):
-    """Tarjeta aislada: cambiar foto solo recarga esta tarjeta (sin lag)."""
+    """Tarjeta aislada: cambiar de foto solo recarga esta tarjeta."""
     pid = p["id"]
     imgs = p.get("images") or ["demo:bag:0"]
     n = len(imgs)
@@ -967,9 +959,9 @@ def product_card(p, scope: str = "h"):
         html(card_image_html(p, idx, ss.get(f"dir_{pid}", "r")))
         if n > 1:
             carousel_arrows("", f"arw_{scope}_{pid}", pid, n)
-        html(f'<div class="ra-info"><div class="ra-brand">{esc(p.get("brand") or p.get("category"))}</div>'
-             f'<div class="ra-name" title="{esc(p["name"])}">{esc(p["name"])}</div>'
-             f'<div class="ra-chips">{chips_html(p)}</div><div class="ra-price">{money_html(p["price"])}</div></div>')
+        html(f'<div class="ra-info"><div class="ra-name" title="{esc(p["name"])}">{esc(p["name"])}</div>'
+             f'<div class="ra-meta">{esc(meta_line(p)) or "&nbsp;"}</div>'
+             f'<div class="ra-price">{money_html(p["price"])}</div></div>')
         if st.button("Ver detalle", key=f"view_{scope}_{pid}", use_container_width=True):
             ss.view = "product"
             st.query_params.clear()
@@ -982,20 +974,21 @@ def product_grid(items, scope="h", cols_n=4):
                              for i, p in enumerate(items)) + "</style>")
     with st.container(key=f"grid_{scope}"):
         for start in range(0, len(items), cols_n):
-            cols = st.columns(cols_n, gap="medium")
+            cols = st.columns(cols_n, gap="small")
             for j, p in enumerate(items[start:start + cols_n]):
                 with cols[j]:
                     product_card(p, scope)
 
 
 # ══════════════════════════════════════════════════════════════════════════
-# 9 · VISTAS DE LA TIENDA
+# 9 · TIENDA
 # ══════════════════════════════════════════════════════════════════════════
 def render_home(db):
-    render_intro()
-    section("Catálogo", "La colección", "Toca cualquier pieza para ver sus fotos, medidas y origen.")
+    render_hero(db)
 
     present = [c for c in CATEGORIES if any(p["category"] == c for p in db["products"])]
+    items_all = db["products"]
+    section("La <em>colección</em>", "Catálogo", f"{len(items_all)} piezas", anchor="coleccion")
     cat = st.pills("Categoría", ["Todo"] + present, default="Todo",
                    label_visibility="collapsed", key="cat_pills") or "Todo"
     f1, f2, f3 = st.columns([2.4, 1.2, 1], vertical_alignment="center")
@@ -1003,8 +996,9 @@ def render_home(db):
                       label_visibility="collapsed", icon=":material/search:")
     sort = f2.selectbox("Ordenar", SORTS, key="sort", label_visibility="collapsed")
     only = f3.toggle("Solo disponibles", key="only_avail")
+    st.write("")
 
-    items = db["products"]
+    items = items_all
     if cat != "Todo":
         items = [p for p in items if p["category"] == cat]
     if only:
@@ -1022,21 +1016,21 @@ def render_home(db):
     else:
         items = sorted(items, key=lambda p: p["status"] != "Disponible")
 
-    html(f'<div class="ra-count">{len(items)} {"pieza" if len(items) == 1 else "piezas"}</div>')
     if items:
         product_grid(items, "h")
     else:
         empty("Sin resultados", "Prueba otra categoría o borra la búsqueda.")
 
-    section("Así de simple", "Cómo comprar")
+    st.write("")
+    st.write("")
+    section("Cómo <em>comprar</em>", "Así de simple", anchor="comprar")
     html('<div class="ra-steps">'
          '<div class="ra-step"><div class="n">01</div><b>Elige tu pieza</b>'
          '<span>Revisa fotos, talla y origen en la ficha de cada artículo.</span></div>'
          '<div class="ra-step"><div class="n">02</div><b>Consulta el stock</b>'
          '<span>El botón Consultar arma el correo con el producto y su link. Solo envíalo.</span></div>'
          '<div class="ra-step"><div class="n">03</div><b>Coordinamos la entrega</b>'
-         '<span>Acordamos punto y horario en Santiago. Pagas al recibir o por transferencia.</span></div>'
-         '</div>')
+         '<span>Acordamos punto y horario en Santiago. Pagas al recibir o por transferencia.</span></div></div>')
 
 
 @st.fragment
@@ -1056,14 +1050,12 @@ def gallery(p):
 def render_product(db, pid):
     p = get_product(db, pid)
     if not p:
-        st.write("")
         empty("Esta pieza ya no está publicada", "Puede que se haya vendido. Revisa la colección.")
-        st.write("")
         if st.button("Ver la colección", type="primary"):
             go("home")
         return
     html(f'<div class="ra-crumb">Tienda / {esc(p["category"])} / <b>{esc(p["name"])}</b></div>')
-    left, right = st.columns([1, 1.05], gap="large")
+    left, right = st.columns([1.1, 1], gap="large")
     with left:
         gallery(p)
     with right:
@@ -1072,29 +1064,27 @@ def render_product(db, pid):
         sl = size_label(p)
         wa_txt = (f"Hola Benjamín, quiero consultar el stock de: {p['name']}" + (f" ({sl})" if sl else "")
                   + f" – {money(p['price'])}\n{product_link(db, p['id'])}")
-        specs = [("ruler", "Talla" if p.get("category") in SIZED else "Medida", p.get("size") or "No aplica"),
-                 ("globe", "Made in", p.get("made_in") or "—"), ("tag", "Marca", p.get("brand") or "—"),
-                 ("spark", "Condición", p.get("condition") or "—"), ("box", "Categoría", p.get("category")),
-                 ("calendar", "Publicado", fmt_date(p.get("created")))]
+        rows = [("Talla" if p.get("category") in SIZED else "Medida", p.get("size") or "No aplica"),
+                ("Made in", p.get("made_in") or "—"), ("Marca", p.get("brand") or "—"),
+                ("Condición", p.get("condition") or "—"), ("Categoría", p.get("category")),
+                ("Publicado", fmt_date(p.get("created")))]
         desc = esc(p.get("description"))
         det = "".join(f"<li>{esc(x)}</li>" for x in (p.get("details") or []) if str(x).strip())
         html('<div class="ra-d">'
              f'<div class="ra-d-brand">{esc(p.get("brand") or p.get("category"))}</div>'
              f'<div class="ra-d-name">{esc(p["name"])}</div>'
              f'<div class="ra-d-price"><b>{money_html(p["price"])}</b>'
-             f'<span class="ra-pill {"out" if sold else "ok"}">{esc(p["status"])}</span></div>'
-             f'<div class="ra-chips">{chips_html(p, with_brand=True)}</div>'
+             f'<span class="ra-st{"" if sold else " ok"}">{esc(p["status"])}</span></div>'
              f'<div class="ra-d-short">{esc(p.get("short"))}</div>'
-             f'<a class="ra-cta" href="{mailto(subject, body)}">{ICON["mail"]}'
-             f'{"Consultar disponibilidad" if sold else "Consultar"}</a>'
-             '<div class="ra-cta-row">'
-             f'<a class="ra-cta ghost" href="{wa_link(wa_txt)}" target="_blank" rel="noopener">{ICON["whatsapp"]}WhatsApp</a>'
-             f'<a class="ra-cta ghost" href="{gmail_link(subject, body)}" target="_blank" rel="noopener">{ICON["mail"]}Gmail</a>'
-             '</div><div class="ra-specs">'
-             + "".join(f"<div><small>{ICON[i]}{esc(k)}</small><span>{esc(v)}</span></div>" for i, k, v in specs)
+             f'<a class="ra-buy" href="{mailto(subject, body)}">{"Consultar disponibilidad" if sold else "Consultar"}</a>'
+             '<div class="ra-buy-row">'
+             f'<a class="ra-alt" href="{wa_link(wa_txt)}" target="_blank" rel="noopener">{BRAND["whatsapp"]}WhatsApp</a>'
+             f'<a class="ra-alt" href="{gmail_link(subject, body)}" target="_blank" rel="noopener">{BRAND["gmail"]}Gmail</a>'
+             '</div><div class="ra-dl">'
+             + "".join(f"<div><span>{esc(k)}</span><span>{esc(v)}</span></div>" for k, v in rows)
              + '</div><div class="ra-desc">'
              + (f"<h4>Descripción</h4><p>{desc}</p>" if desc else "")
-             + (f"<h4 style='margin-top:1.1rem!important'>Detalles</h4><ul>{det}</ul>" if det else "")
+             + (f"<h4>Detalles</h4><ul>{det}</ul>" if det else "")
              + "</div></div>")
         st.caption("Link directo de esta pieza")
         st.code(product_link(db, p["id"]), language=None)
@@ -1103,7 +1093,9 @@ def render_product(db, pid):
     related += [x for x in db["products"] if x["id"] != p["id"] and x not in related]
     related = sorted(related, key=lambda x: x["status"] != "Disponible")[:4]
     if related:
-        section("Sigue mirando", "También te puede gustar")
+        st.write("")
+        st.write("")
+        section("También te puede <em>gustar</em>", "Sigue mirando")
         product_grid(related, "r")
 
 
@@ -1130,7 +1122,7 @@ def opt_field(label: str, key: str, placeholder: str, current: str = ""):
 
 
 def render_login(db):
-    _, mid, _ = st.columns([1, 1.45, 1])
+    _, mid, _ = st.columns([1, 1.3, 1])
     with mid, st.container(key="authbox"):
         html(f'<div class="ra-auth">{LOGO}<h3>Tu cuenta</h3>'
              '<p>Regístrate y tus compras quedarán guardadas en tu perfil.</p></div>')
@@ -1155,7 +1147,7 @@ def render_login(db):
             if st.button("Entrar al panel", type="primary", use_container_width=True, key="adm_btn"):
                 if check_admin(db, apw):
                     ss.role, ss.user_id = "admin", None
-                    flash("Sesión de administrador iniciada", ":material/admin_panel_settings:")
+                    flash("Sesión de administrador iniciada", ":material/tune:")
                     go("admin")
                 st.error("Contraseña incorrecta.")
 
@@ -1234,7 +1226,7 @@ def purchases_list(db, purchases, admin=False):
             continue
         a, b = st.columns([10, 1], vertical_alignment="center")
         a.markdown(row, unsafe_allow_html=True)
-        if b.button("", key=f"delpu_{pu['id']}", icon=":material/delete:", help="Quitar esta compra"):
+        if b.button("", key=f"delpu_{pu['id']}", icon=":material/close:", help="Quitar esta compra"):
             db["purchases"] = [x for x in db["purchases"] if x["id"] != pu["id"]]
             save_db(db)
             flash("Compra eliminada", ":material/delete:")
@@ -1355,7 +1347,7 @@ def admin_products(db):
         empty("Catálogo vacío", "Publica tu primera pieza arriba.")
     for p in db["products"]:
         pid = p["id"]
-        with st.container(border=True):
+        with st.container(key=f"adm_{pid}"):
             c0, c1, c2, c3 = st.columns([.6, 3.4, 1.6, 1.3], vertical_alignment="center")
             c0.markdown(f'<div class="ra-row flat"><img src="{img_src((p.get("images") or [""])[0], thumb=True)}"/></div>',
                         unsafe_allow_html=True)
@@ -1387,7 +1379,7 @@ def admin_products(db):
                 if n.button("Cancelar", key=f"no_{pid}", use_container_width=True):
                     ss.confirm_del = None
                     st.rerun()
-            with st.expander("Editar", icon=":material/edit:"):
+            with st.expander("Editar"):
                 imgs = p.get("images") or []
                 if imgs:
                     html('<div class="ra-thumbs">' + "".join(
@@ -1454,7 +1446,8 @@ def admin_sales(db):
 
     recent = sorted(db["purchases"], key=lambda x: x.get("created", ""), reverse=True)[:8]
     if recent:
-        section("", "Últimas ventas", left=True)
+        st.write("")
+        section("Últimas <em>ventas</em>")
         rows = "".join(f"<tr><td>{fmt_date(x['date'])}</td><td>{esc((get_user(db, x['user_id']) or {}).get('name', '—'))}</td>"
                        f"<td>{esc(x['product_name'])}</td><td>{x['qty']}</td><td>{money_html(x['total'])}</td></tr>"
                        for x in recent)
@@ -1501,22 +1494,24 @@ def admin_clients(db):
 
     top = [s for s in stats if s[3] > 0][:3]
     if top:
-        section("", "Quién te compra más", left=True)
+        st.write("")
+        section("Quién te compra <em>más</em>")
         html('<div class="ra-podium">' + "".join(
-            f'<div class="ra-pod{" first" if i == 0 else ""}"><div class="p">{i + 1}</div>'
-            f'<img src="{user_avatar(u)}"/><div><b>{esc(u["name"])}</b><small>{c} compras · {money_html(t)}</small></div></div>'
+            f'<div class="ra-pod"><div class="p">{i + 1}</div><img src="{user_avatar(u)}"/>'
+            f'<div><b>{esc(u["name"])}</b><small>{c} compras · {money_html(t)}</small></div></div>'
             for i, (u, c, _, t, _) in enumerate(top)) + "</div>")
 
     rows = "".join(
         f"<tr><td>{i}</td><td><img src='{user_avatar(u)}'/>{esc(u['name'])}</td><td>{esc(u.get('phone_display') or u['phone'])}</td>"
         f"<td>{esc(u.get('email') or '—')}</td><td>{esc(u.get('location') or '—')}</td><td>{c}</td><td>{units}</td>"
-        f"<td><b>{money_html(total)}</b></td><td>{fmt_date(last) if last else '—'}</td></tr>"
+        f"<td>{money_html(total)}</td><td>{fmt_date(last) if last else '—'}</td></tr>"
         for i, (u, c, units, total, last) in enumerate(stats, 1))
     html('<div class="ra-table-wrap"><table class="ra-table"><thead><tr><th>#</th><th>Cliente</th><th>Teléfono</th>'
          '<th>Correo</th><th>Ubicación</th><th>Compras</th><th>Unid.</th><th>Total</th><th>Última</th></tr></thead>'
          f'<tbody>{rows}</tbody></table></div>')
 
-    section("", "Perfil del cliente", left=True)
+    st.write("")
+    section("Perfil del <em>cliente</em>")
     uid = st.selectbox("Cliente", [s[0]["id"] for s in stats], key="cl_pick",
                        format_func=lambda i: get_user(db, i)["name"], label_visibility="collapsed")
     u = get_user(db, uid)
@@ -1550,7 +1545,7 @@ def admin_settings(db):
             "No se encontró <b>benja.jpeg</b>. Súbela a la raíz del repositorio y aparecerá sola.")
          + "</div></div>")
     st.divider()
-    section("", "Link de la tienda", "Se usa en los correos de consulta. Si publicas la app, pega aquí su dirección.", left=True)
+    st.caption("Link público de la tienda (se usa en los correos de consulta)")
     bu = st.text_input("Dirección pública", value=db["settings"].get("base_url", ""), key="set_base",
                        placeholder=app_base_url(db), label_visibility="collapsed")
     if st.button("Guardar link", key="set_base_btn"):
@@ -1559,7 +1554,7 @@ def admin_settings(db):
         flash("Link guardado", ":material/link:")
         st.rerun()
     st.divider()
-    section("", "Contraseña de administrador", left=True)
+    st.caption("Contraseña de administrador")
     a, b, c = st.columns(3)
     cur = a.text_input("Actual", type="password", key="set_cur")
     new = b.text_input("Nueva", type="password", key="set_new")
@@ -1582,9 +1577,10 @@ def admin_settings(db):
 def render_admin(db):
     if ss.role != "admin":
         go("login")
+    st.write("")
     h, o = st.columns([5, 1], vertical_alignment="bottom")
     with h:
-        section("Administración", "Panel de la tienda", left=True)
+        section("Panel de <em>la tienda</em>", "Administración")
     with o:
         if st.button("Salir", key="adm_out", icon=":material/logout:", use_container_width=True):
             logout()
@@ -1604,17 +1600,19 @@ def render_admin(db):
 # ══════════════════════════════════════════════════════════════════════════
 def render_footer():
     html('<div class="ra-foot"><div class="ra-foot-grid">'
-         f'<div>{logo_html()}<p>{esc(OWNER["tagline"])} Piezas revisadas y entregas coordinadas en Santiago.</p></div>'
+         f'<div>{LOGO}<div class="bm">Rissos Anghell Store</div>'
+         f'<p>{esc(OWNER["tagline"])} Piezas revisadas y entregas coordinadas en Santiago.</p></div>'
          '<div><h5>Contacto</h5>'
-         f'<a class="l" href="{wa_link()}" target="_blank" rel="noopener">{ICON["whatsapp"]}{OWNER["whatsapp_display"]}</a>'
-         f'<a class="l" href="{IG_LINK}" target="_blank" rel="noopener">{ICON["instagram"]}@{OWNER["instagram"]}</a>'
-         f'<a class="l" href="{mailto("Contacto – Rissos Anghell Store")}">{ICON["mail"]}{OWNER["email"]}</a></div>'
+         f'<a class="l" href="{wa_link()}" target="_blank" rel="noopener">{BRAND["whatsapp"]}{OWNER["whatsapp_display"]}</a>'
+         f'<a class="l" href="{IG_LINK}" target="_blank" rel="noopener">{BRAND["instagram"]}@{OWNER["instagram"]}</a>'
+         f'<a class="l" href="{mailto("Contacto – Rissos Anghell Store")}">{BRAND["gmail"]}{OWNER["email"]}</a></div>'
          '<div><h5>Información</h5>'
          f'<div class="li">{esc(OWNER["city"])}</div><div class="li">Entregas coordinadas</div>'
          '<div class="li">Pago al recibir o por transferencia</div></div>'
          f'</div><div class="ra-copy">{esc(COPYRIGHT)}</div></div>'
          f'<a class="ra-float" href="{wa_link("Hola Benjamín, te escribo desde Rissos Anghell Store.")}" '
-         f'target="_blank" rel="noopener" aria-label="Escribir por WhatsApp">{ICON["whatsapp"]}<span>Escríbeme</span></a>')
+         f'target="_blank" rel="noopener" aria-label="Escribir por WhatsApp">{BRAND["whatsapp_white"]}'
+         '<span>Escríbeme</span></a>')
 
 
 # ══════════════════════════════════════════════════════════════════════════
