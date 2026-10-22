@@ -87,8 +87,8 @@ def _svg_url(svg: str) -> str:
     return 'url("data:image/svg+xml,' + quote(svg) + '")'
 
 
-_SUN = _svg_url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#FF2D4A" '
-                'stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2'
+_SUN = _svg_url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#B08A3E" '
+                'stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2'
                 'M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>')
 _MOON = _svg_url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#FF2D4A">'
                  '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>')
@@ -99,13 +99,13 @@ THEMES = {
               "line": "rgba(11,11,11,.08)", "line2": "rgba(11,11,11,.2)", "accent": "#B08A3E",
               "accent-ink": "#FFFFFF", "accent-soft": "rgba(176,138,62,.14)", "glow": "none",
               "drop-glow": "none", "head": "rgba(255,255,255,.96)", "ok": "#3F7D4E",
-              "sw-bg": "#0B0B0B", "sw-icon": _MOON, "sw-ring": "rgba(11,11,11,.12)", "red": "#D7102C", "hanger": "#9A6A3A"},
+              "sw-track": "#E9E1D2", "sw-knob": "#FFFFFF", "sw-icon": _SUN, "sw-x": "0px", "red": "#D7102C", "hanger": "#9A6A3A"},
     "dark": {"bg": "#050505", "bg2": "#0F0F0F", "text": "#F4F4F4", "muted": "#8C8C8C", "faint": "#565656",
              "line": "rgba(244,244,244,.08)", "line2": "rgba(244,244,244,.2)", "accent": "#FF2D4A",
              "accent-ink": "#FFFFFF", "accent-soft": "rgba(255,45,74,.14)",
              "glow": "0 0 24px rgba(255,45,74,.45)", "drop-glow": "drop-shadow(0 0 5px rgba(255,45,74,.75))",
              "head": "rgba(5,5,5,.94)", "ok": "#5FD07A",
-             "sw-bg": "#F4F4F4", "sw-icon": _SUN, "sw-ring": "rgba(244,244,244,.14)", "red": "#FF2D4A", "hanger": "#FF2D4A"},
+             "sw-track": "#FF2D4A", "sw-knob": "#0B0B0B", "sw-icon": _MOON, "sw-x": "26px", "red": "#FF2D4A", "hanger": "#FF2D4A"},
 }
 
 # ── Íconos de marca, con sus colores reales ──────────────────────────────
@@ -603,23 +603,28 @@ hr{border-color:var(--line)!important;margin:1.4rem 0!important}
 .st-key-nav_acc button:hover [data-testid="stIconMaterial"]{transform:rotate(-8deg)}
 .st-key-hdr .stButton button:hover{opacity:.7}
 .ra-brand{display:flex;align-items:center;gap:.75rem;white-space:nowrap}
+.st-key-brandbox{position:relative;width:fit-content!important;gap:0!important;cursor:pointer}
+.st-key-nav_home{position:absolute!important;inset:0;z-index:2;margin:0!important}
+.st-key-nav_home div,.st-key-nav_home button{width:100%!important;height:100%!important;min-height:0!important}
+.st-key-nav_home button{opacity:0!important;cursor:pointer;padding:0!important}
+.st-key-brandbox:hover .ra-brand b{opacity:.75}
+.st-key-brandbox:has(button:focus-visible){outline:1.5px solid var(--accent);outline-offset:4px;border-radius:12px}
 .ra-cart{width:48px;height:48px;flex-shrink:0;display:block}
 .ra-cart-g{transform-box:fill-box;transform-origin:center;animation:cartIn .9s var(--ease) .1s backwards}
-.ra-brand:hover .ra-cart-g{transform:translateX(2px);transition:transform .4s var(--ease)}
+.st-key-brandbox:hover .ra-cart-g{transform:translateX(3px);transition:transform .4s var(--ease)}
 .ra-brand b{display:block;font-size:1.12rem;font-weight:600;letter-spacing:-.01em;color:var(--text);line-height:1.1}
 .ra-brand span{display:block;font-size:.72rem;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-top:2px}
 /* Botón flotante de tema (abajo a la izquierda) */
-.st-key-theme_sw{position:relative!important;display:flex;justify-content:flex-end;width:auto!important}
-.st-key-theme_sw::before{content:"";position:absolute;top:-6px;right:-6px;width:58px;height:58px;border-radius:50%;border:1.5px solid var(--red);opacity:0;pointer-events:none}
-.st-key-theme_sw button{position:relative;width:46px!important;min-width:46px!important;height:46px!important;min-height:46px!important;padding:0!important;border-radius:50%!important;background:var(--sw-bg)!important;border:none!important;overflow:hidden;box-shadow:0 0 0 5px var(--sw-ring),0 10px 24px -12px rgba(0,0,0,.55)!important;transition:transform .35s cubic-bezier(.22,.8,.24,1)!important}
-.st-key-theme_sw button:hover{transform:scale(1.06)}
-.st-key-theme_sw button:active{transform:scale(.94)}
+.st-key-theme_sw{display:flex;justify-content:flex-end;width:auto!important}
+.st-key-theme_sw button{position:relative;width:58px!important;min-width:58px!important;height:32px!important;min-height:32px!important;padding:0!important;border-radius:999px!important;background:var(--sw-track)!important;border:none!important;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.18)!important;transition:background-color .45s cubic-bezier(.4,0,.2,1)!important}
+.st-key-theme_sw button:hover{filter:brightness(1.04)}
 .st-key-theme_sw button p,.st-key-theme_sw button span{font-size:0!important;opacity:0}
-.st-key-theme_sw button::after{content:"";position:absolute;inset:0;background:var(--sw-icon) center/20px no-repeat}
-@keyframes ring{0%{opacity:.55;transform:scale(.85)}100%{opacity:0;transform:scale(1.35)}}
+.st-key-theme_sw button::after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:999px;background:var(--sw-icon) center/14px no-repeat,var(--sw-knob);box-shadow:0 2px 6px rgba(0,0,0,.28);transform:translateX(var(--sw-x));transform-origin:center}
+.st-key-theme_sw button:active::after{transform:translateX(var(--sw-x)) scale(.92)}
+@keyframes knobToDark{0%{transform:translateX(0) scaleX(1)}45%{transform:translateX(15px) scaleX(1.32)}80%{transform:translateX(28px) scaleX(.94)}100%{transform:translateX(26px) scaleX(1)}}
+@keyframes knobToLight{0%{transform:translateX(26px) scaleX(1)}45%{transform:translateX(11px) scaleX(1.32)}80%{transform:translateX(-2px) scaleX(.94)}100%{transform:translateX(0) scaleX(1)}}
 /* Streamlit atenúa los elementos mientras recarga: lo desactivamos para que nada parpadee */
 [data-stale="true"],.stale-element,[data-testid="stElementContainer"][data-stale="true"]{opacity:1!important;transition:none!important}
-@keyframes iconSpin{0%{opacity:0;transform:rotate(-120deg) scale(.5)}100%{opacity:1;transform:none}}
 
 /* Portada: foto + nombre + redes, a la izquierda y centrado en pantalla */
 .ra-hero{min-height:calc(72vh - 64px);display:flex;align-items:center;padding:2rem 0}
@@ -790,8 +795,6 @@ hr{border-color:var(--line)!important;margin:1.4rem 0!important}
  .ra-so small{display:none}
  .ra-so svg{width:34px;height:34px}
  .st-key-nav_acc button p{display:none}
- .st-key-theme_sw::before{width:52px;height:52px}
- .st-key-theme_sw button{width:42px!important;min-width:42px!important;height:42px!important;min-height:42px!important}
  .ra-sec .t{font-size:1.6rem}
  [class*="st-key-grid_"]{gap:1.8rem!important}
  [class*="st-key-grid_"] [data-testid="stHorizontalBlock"]{flex-wrap:wrap!important;gap:1.8rem .7rem!important}
@@ -819,15 +822,16 @@ _FADE_CSS = (
     ":where(.stApp *){transition:background-color .55s cubic-bezier(.4,0,.2,1),"
     "color .55s cubic-bezier(.4,0,.2,1),border-color .55s cubic-bezier(.4,0,.2,1),"
     "fill .55s cubic-bezier(.4,0,.2,1),stroke .55s cubic-bezier(.4,0,.2,1)}"
-    ".st-key-theme_sw button::after{animation:iconSpin .6s cubic-bezier(.22,.8,.24,1)}"
-    ".st-key-theme_sw::before{animation:ring .7s cubic-bezier(.22,.8,.24,1)}"
 )
 
 
 @st.fragment
 def theme_control():
     """Botón de tema aislado: al tocarlo solo se recarga este botón, nunca la página entera."""
-    css = theme_vars(ss.theme) + (_FADE_CSS if ss.pop("_anim", False) else "")
+    css = theme_vars(ss.theme)
+    if ss.pop("_anim", False):
+        knob = "knobToDark" if ss.theme == "dark" else "knobToLight"
+        css += _FADE_CSS + f".st-key-theme_sw button::after{{animation:{knob} .55s cubic-bezier(.45,.05,.2,1)}}"
     html(f"<style>{css}</style>")
     st.button("Tema", key="theme_sw", on_click=_toggle_theme,
               help="Cambiar a tema oscuro" if ss.theme == "light" else "Cambiar a tema claro")
@@ -856,7 +860,10 @@ def brand_html() -> str:
 def render_header(db, view):
     with st.container(key="hdr"):
         left, c_shop, c_acc, c_theme = st.columns([4.4, 1.1, 1.4, .55], vertical_alignment="center")
-        left.markdown(brand_html(), unsafe_allow_html=True)
+        with left, st.container(key="brandbox"):
+            html(brand_html())
+            if st.button("Inicio", key="nav_home", help="Volver al inicio"):
+                go("home")
         with c_shop:
             if view != "home" and st.button("Tienda", key="nav_shop", icon=":material/west:"):
                 go("home")
