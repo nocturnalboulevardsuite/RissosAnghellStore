@@ -87,8 +87,8 @@ def _svg_url(svg: str) -> str:
     return 'url("data:image/svg+xml,' + quote(svg) + '")'
 
 
-_SUN = _svg_url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#B08A3E" '
-                'stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2'
+_SUN = _svg_url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#FF2D4A" '
+                'stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2'
                 'M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>')
 _MOON = _svg_url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#FF2D4A">'
                  '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>')
@@ -99,13 +99,13 @@ THEMES = {
               "line": "rgba(11,11,11,.08)", "line2": "rgba(11,11,11,.2)", "accent": "#B08A3E",
               "accent-ink": "#FFFFFF", "accent-soft": "rgba(176,138,62,.14)", "glow": "none",
               "drop-glow": "none", "head": "rgba(255,255,255,.96)", "ok": "#3F7D4E",
-              "sw-track": "#F1EBDD", "sw-knob": "#FFFFFF", "sw-x": "0px", "sw-icon": _SUN, "red": "#D7102C"},
+              "sw-bg": "#0B0B0B", "sw-icon": _MOON, "sw-ring": "rgba(11,11,11,.12)", "red": "#D7102C"},
     "dark": {"bg": "#050505", "bg2": "#0F0F0F", "text": "#F4F4F4", "muted": "#8C8C8C", "faint": "#565656",
              "line": "rgba(244,244,244,.08)", "line2": "rgba(244,244,244,.2)", "accent": "#FF2D4A",
              "accent-ink": "#FFFFFF", "accent-soft": "rgba(255,45,74,.14)",
              "glow": "0 0 24px rgba(255,45,74,.45)", "drop-glow": "drop-shadow(0 0 5px rgba(255,45,74,.75))",
              "head": "rgba(5,5,5,.94)", "ok": "#5FD07A",
-             "sw-track": "#1E080C", "sw-knob": "#050505", "sw-x": "30px", "sw-icon": _MOON, "red": "#FF2D4A"},
+             "sw-bg": "#F4F4F4", "sw-icon": _SUN, "sw-ring": "rgba(244,244,244,.14)", "red": "#FF2D4A"},
 }
 
 # ── Íconos de marca, con sus colores reales ──────────────────────────────
@@ -604,24 +604,27 @@ hr{border-color:var(--line)!important;margin:1.4rem 0!important}
 .ra-brand:hover .ra-cart-g{transform:translateX(2px);transition:transform .4s var(--ease)}
 .ra-brand b{display:block;font-size:1.02rem;font-weight:600;letter-spacing:-.01em;color:var(--text);line-height:1.1}
 .ra-brand span{display:block;font-size:.72rem;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-top:2px}
-/* Switch de tema flotante (abajo a la derecha) */
-.st-key-theme_sw{position:fixed!important;right:24px;bottom:24px;z-index:1000;width:auto!important}
-.st-key-theme_sw::before{content:"";position:absolute;inset:-6px;border-radius:999px;border:1.5px solid var(--red);opacity:0;pointer-events:none}
-.st-key-theme_sw button{position:relative;width:64px!important;min-width:64px!important;height:34px!important;min-height:34px!important;padding:0!important;border-radius:999px!important;background:var(--sw-track)!important;border:1px solid var(--line2)!important;overflow:hidden;box-shadow:0 8px 24px -10px rgba(0,0,0,.45)}
-.st-key-theme_sw button:hover{border-color:var(--red)!important}
+/* Botón flotante de tema (abajo a la izquierda) */
+.st-key-theme_sw{position:fixed!important;left:24px;bottom:24px;z-index:1000;width:auto!important}
+.st-key-theme_sw::before{content:"";position:absolute;inset:-7px;border-radius:50%;border:1.5px solid var(--red);opacity:0;pointer-events:none}
+.st-key-theme_sw button{position:relative;width:54px!important;min-width:54px!important;height:54px!important;min-height:54px!important;padding:0!important;border-radius:50%!important;background:var(--sw-bg)!important;border:none!important;overflow:hidden;box-shadow:0 0 0 6px var(--sw-ring),0 14px 30px -12px rgba(0,0,0,.55)!important;transition:transform .35s cubic-bezier(.22,.8,.24,1)!important}
+.st-key-theme_sw button:hover{transform:translateY(-3px) scale(1.04)}
+.st-key-theme_sw button:active{transform:scale(.94)}
 .st-key-theme_sw button p,.st-key-theme_sw button span{font-size:0!important;opacity:0}
-.st-key-theme_sw button::before{content:"";position:absolute;top:50%;left:0;width:100%;height:3px;margin-top:-1.5px;border-radius:3px;opacity:0;pointer-events:none;background:linear-gradient(90deg,transparent,var(--red) 55%,transparent)}
-.st-key-theme_sw button::after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:var(--sw-icon) center/14px no-repeat,var(--sw-knob);box-shadow:0 1px 5px rgba(0,0,0,.3);transform:translateX(var(--sw-x));transition:transform .55s cubic-bezier(.68,-.35,.27,1.35)}
-@keyframes dashR{0%{opacity:0;transform:translateX(-100%) scaleX(.4)}35%{opacity:1}100%{opacity:0;transform:translateX(100%) scaleX(1.2)}}
-@keyframes dashL{0%{opacity:0;transform:translateX(100%) scaleX(.4)}35%{opacity:1}100%{opacity:0;transform:translateX(-100%) scaleX(1.2)}}
-@keyframes ring{0%{opacity:.9;transform:scale(.92)}100%{opacity:0;transform:scale(1.35)}}
+.st-key-theme_sw button::before{content:"";position:absolute;top:50%;left:-10%;width:120%;height:4px;margin-top:-2px;border-radius:4px;opacity:0;pointer-events:none;background:linear-gradient(90deg,transparent,var(--red) 60%,transparent)}
+.st-key-theme_sw button::after{content:"";position:absolute;inset:0;background:var(--sw-icon) center/22px no-repeat}
+@keyframes dashR{0%{opacity:0;transform:translateX(-90%) scaleX(.3)}30%{opacity:1}100%{opacity:0;transform:translateX(90%) scaleX(1.1)}}
+@keyframes dashL{0%{opacity:0;transform:translateX(90%) scaleX(.3)}30%{opacity:1}100%{opacity:0;transform:translateX(-90%) scaleX(1.1)}}
+@keyframes ring{0%{opacity:.9;transform:scale(.9)}100%{opacity:0;transform:scale(1.45)}}
+@keyframes iconR{0%{opacity:0;transform:translateX(-60%) rotate(-90deg)}100%{opacity:1;transform:none}}
+@keyframes iconL{0%{opacity:0;transform:translateX(60%) rotate(90deg)}100%{opacity:1;transform:none}}
 .ra-fade{position:fixed;inset:0;z-index:99998;pointer-events:none;animation:fadeOut .6s var(--ease) forwards}
 
 /* Portada: foto + nombre + redes, a la izquierda y centrado en pantalla */
 .ra-hero{min-height:calc(72vh - 64px);display:flex;align-items:center;padding:2rem 0}
 .ra-me{display:flex;align-items:center;gap:2.4rem}
-.ra-photo{width:212px;height:264px;flex-shrink:0;border-radius:22px;overflow:hidden;background:var(--bg2);animation:photoIn 1s var(--ease) backwards}
-.ra-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.ra-photo{width:200px;height:250px;flex-shrink:0;border-radius:22px;overflow:hidden;background:#111 center/cover no-repeat;transform:translateZ(0);backface-visibility:hidden;contain:paint;animation:photoIn 1s var(--ease) backwards}
+.ra-photo img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;backface-visibility:hidden}
 .ra-info{min-width:0}
 .ra-hello{font-size:.86rem;color:var(--red);font-weight:600;animation:rise .8s var(--ease) .15s backwards}
 .ra-name{font-size:clamp(2.2rem,4.6vw,3.4rem);font-weight:600;letter-spacing:-.035em;line-height:1.02;color:var(--text);margin:.3rem 0 .5rem;animation:rise .8s var(--ease) .22s backwards}
@@ -650,13 +653,13 @@ hr{border-color:var(--line)!important;margin:1.4rem 0!important}
 [class*="st-key-view_"] div,[class*="st-key-view_"] button{width:100%!important;height:100%!important}
 [class*="st-key-view_"] button{opacity:0!important;cursor:pointer}
 [class*="st-key-card_"]:has(button:focus-visible){outline:1.5px solid var(--accent);outline-offset:4px;border-radius:14px}
-.ra-img{position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--bg2);border-radius:14px;isolation:isolate}
+.ra-img{position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--bg2) center/cover no-repeat;border-radius:14px;isolation:isolate;contain:paint}
 .ra-img.big{border-radius:20px}
 .ra-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1.1s var(--ease);backface-visibility:hidden}
 .ra-img img.r{animation:inR .45s var(--ease)}
 .ra-img img.l{animation:inL .45s var(--ease)}
 [class*="st-key-card_"]:hover .ra-img img{transform:scale(1.04)}
-.ra-img.sold img{filter:grayscale(1);opacity:.7}
+.ra-img.sold{filter:grayscale(1);opacity:.75}
 .ra-tag2{position:absolute;top:10px;left:10px;font-size:.66rem;font-weight:600;color:var(--text);background:var(--bg);padding:4px 9px;border-radius:999px}
 .ra-bars{position:absolute;left:12px;right:12px;bottom:10px;display:flex;gap:4px}
 .ra-bars i{flex:1;height:2px;border-radius:2px;background:rgba(255,255,255,.4)}
@@ -791,7 +794,7 @@ hr{border-color:var(--line)!important;margin:1.4rem 0!important}
  .ra-prof .k{margin-left:0}
  .ra-podium{grid-template-columns:1fr;gap:1rem}
  .ra-foot{flex-direction:column;gap:.5rem;margin-top:3.5rem;padding-bottom:5rem}
- .st-key-theme_sw{right:16px;bottom:16px}
+ .st-key-theme_sw{left:16px;bottom:16px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 """
@@ -804,7 +807,9 @@ def inject_css():
     old = ss.pop("_curtain", None)
     if old:  # el tema anterior se desvanece + estela roja en el switch (solo transform/opacity → 60 fps)
         dash = "dashR" if ss.theme == "dark" else "dashL"
+        icon = "iconR" if ss.theme == "dark" else "iconL"
         html(f'<style>.st-key-theme_sw button::before{{animation:{dash} .6s cubic-bezier(.22,.8,.24,1)}}'
+             f'.st-key-theme_sw button::after{{animation:{icon} .55s cubic-bezier(.22,.8,.24,1)}}'
              '.st-key-theme_sw::before{animation:ring .7s cubic-bezier(.22,.8,.24,1)}</style>'
              f'<div class="ra-fade" data-n="{uuid.uuid4().hex[:6]}" style="background:{THEMES[old]["bg"]}"></div>')
 
@@ -858,8 +863,9 @@ def render_hero():
         f'<a class="ra-so" href="{h}"{" target=_blank rel=noopener" if blank else ""}>{ic}'
         f'<span class="tx"><b>{lb}</b><small>{esc(val)}</small></span></a>'
         for h, ic, lb, val, blank in socials)
+    photo = owner_photo()
     html('<section class="ra-hero"><div class="ra-me">'
-         f'<div class="ra-photo"><img src="{owner_photo()}" alt="{esc(OWNER["name"])}" decoding="async"/></div>'
+         f'<div class="ra-photo" style="background-image:url({photo})"><img src="{photo}" alt="{esc(OWNER["name"])}"/></div>'
          '<div class="ra-info"><div class="ra-hello">Hola, soy</div>'
          f'<div class="ra-name">{esc(OWNER["name"])}</div>'
          f'<div class="ra-tag">{esc(OWNER["tagline"])}</div>'
@@ -882,8 +888,9 @@ def card_image_html(p, idx: int, d: str, big: bool = False) -> str:
     tag = f'<span class="ra-tag2">{esc(p["status"])}</span>' if sold else ""
     bars = ('<div class="ra-bars">' + "".join(f'<i class="{"on" if i == idx else ""}"></i>' for i in range(len(imgs)))
             + "</div>") if len(imgs) > 1 else ""
-    return (f'<div class="ra-img{" big" if big else ""}{" sold" if sold else ""}"><img class="{d}" '
-            f'src="{img_src(imgs[idx], thumb=not big)}" alt="{esc(p["name"])}" decoding="async"/>{tag}{bars}</div>')
+    src = img_src(imgs[idx], thumb=not big)
+    return (f'<div class="ra-img{" big" if big else ""}{" sold" if sold else ""}" style="background-image:url({src})">'
+            f'<img class="{d}" src="{src}" alt="{esc(p["name"])}"/>{tag}{bars}</div>')
 
 
 def _step(prefix: str, pid: str, n: int, delta: int):
