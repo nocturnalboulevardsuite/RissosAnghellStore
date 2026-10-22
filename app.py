@@ -99,13 +99,13 @@ THEMES = {
               "line": "rgba(11,11,11,.08)", "line2": "rgba(11,11,11,.2)", "accent": "#B08A3E",
               "accent-ink": "#FFFFFF", "accent-soft": "rgba(176,138,62,.14)", "glow": "none",
               "drop-glow": "none", "head": "rgba(255,255,255,.96)", "ok": "#3F7D4E",
-              "sw-bg": "#0B0B0B", "sw-icon": _MOON, "sw-ring": "rgba(11,11,11,.12)", "red": "#D7102C"},
+              "sw-bg": "#0B0B0B", "sw-icon": _MOON, "sw-ring": "rgba(11,11,11,.12)", "red": "#D7102C", "hanger": "#9A6A3A"},
     "dark": {"bg": "#050505", "bg2": "#0F0F0F", "text": "#F4F4F4", "muted": "#8C8C8C", "faint": "#565656",
              "line": "rgba(244,244,244,.08)", "line2": "rgba(244,244,244,.2)", "accent": "#FF2D4A",
              "accent-ink": "#FFFFFF", "accent-soft": "rgba(255,45,74,.14)",
              "glow": "0 0 24px rgba(255,45,74,.45)", "drop-glow": "drop-shadow(0 0 5px rgba(255,45,74,.75))",
              "head": "rgba(5,5,5,.94)", "ok": "#5FD07A",
-             "sw-bg": "#F4F4F4", "sw-icon": _SUN, "sw-ring": "rgba(244,244,244,.14)", "red": "#FF2D4A"},
+             "sw-bg": "#F4F4F4", "sw-icon": _SUN, "sw-ring": "rgba(244,244,244,.14)", "red": "#FF2D4A", "hanger": "#FF2D4A"},
 }
 
 # ── Íconos de marca, con sus colores reales ──────────────────────────────
@@ -528,12 +528,12 @@ def _toggle_theme():
 CSS = r"""
 @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap');
 :root{--ease:cubic-bezier(.22,.8,.24,1);--sans:'Inter Tight','Helvetica Neue',Helvetica,Arial,sans-serif}
-html{font-size:15px}
+html{font-size:16.5px}
 html,body,.stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"]{background:var(--bg)!important;color:var(--text)!important;font-family:var(--sans);-webkit-font-smoothing:antialiased}
 .stApp,[data-testid="stMain"]{overflow-x:hidden!important}
 [data-testid="stMain"]{scroll-behavior:smooth}
 [data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stDecoration"],#MainMenu,footer,[data-testid="stStatusWidget"],[data-testid="stSidebarCollapsedControl"],[data-testid="stAppDeployButton"]{display:none!important}
-.block-container,[data-testid="stMainBlockContainer"]{padding:.5rem 2.4rem 0!important;max-width:1240px!important}
+.block-container,[data-testid="stMainBlockContainer"]{padding:.5rem 2.4rem 0!important;max-width:1320px!important}
 [data-testid="stVerticalBlock"]{gap:.8rem}
 .stApp [data-testid="stMarkdownContainer"] p,.stApp [data-testid="stMarkdownContainer"] li{color:var(--text);font-size:.92rem;font-weight:400}
 [data-testid="stWidgetLabel"] p{color:var(--muted)!important;font-size:.72rem!important;font-weight:500!important;letter-spacing:.06em}
@@ -596,23 +596,27 @@ hr{border-color:var(--line)!important;margin:1.4rem 0!important}
 .st-key-hdr{position:sticky;top:0;z-index:999;background:var(--bg);margin:0!important;padding:.6rem 0}
 .st-key-hdr [data-testid="stHorizontalBlock"]{flex-wrap:nowrap!important;align-items:center;gap:.6rem!important}
 .st-key-hdr [data-testid="stColumn"]{min-width:0!important}
-.st-key-hdr .stButton button{border:none!important;min-height:2.1rem;padding:.2rem .5rem!important}
+.st-key-hdr .stButton button{border:none!important;min-height:2.6rem;padding:.2rem .6rem!important}
+.st-key-nav_acc button{gap:.55rem!important}
+.st-key-nav_acc button p{font-size:.95rem!important;font-weight:600!important}
+.st-key-nav_acc [data-testid="stIconMaterial"],.st-key-nav_acc button span[class*="material"]{font-size:2rem!important;color:var(--hanger)!important;transition:transform .35s var(--ease)}
+.st-key-nav_acc button:hover [data-testid="stIconMaterial"]{transform:rotate(-8deg)}
 .st-key-hdr .stButton button:hover{opacity:.7}
 .ra-brand{display:flex;align-items:center;gap:.75rem;white-space:nowrap}
-.ra-cart{width:40px;height:40px;flex-shrink:0;display:block}
+.ra-cart{width:48px;height:48px;flex-shrink:0;display:block}
 .ra-cart-g{transform-box:fill-box;transform-origin:center;animation:cartIn .9s var(--ease) .1s backwards}
 .ra-brand:hover .ra-cart-g{transform:translateX(2px);transition:transform .4s var(--ease)}
-.ra-brand b{display:block;font-size:1.02rem;font-weight:600;letter-spacing:-.01em;color:var(--text);line-height:1.1}
+.ra-brand b{display:block;font-size:1.12rem;font-weight:600;letter-spacing:-.01em;color:var(--text);line-height:1.1}
 .ra-brand span{display:block;font-size:.72rem;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-top:2px}
 /* Botón flotante de tema (abajo a la izquierda) */
-.st-key-theme_sw{position:fixed!important;left:24px;bottom:24px;z-index:1000;width:auto!important}
-.st-key-theme_sw::before{content:"";position:absolute;inset:-7px;border-radius:50%;border:1.5px solid var(--red);opacity:0;pointer-events:none}
-.st-key-theme_sw button{position:relative;width:54px!important;min-width:54px!important;height:54px!important;min-height:54px!important;padding:0!important;border-radius:50%!important;background:var(--sw-bg)!important;border:none!important;overflow:hidden;box-shadow:0 0 0 6px var(--sw-ring),0 14px 30px -12px rgba(0,0,0,.55)!important;transition:transform .35s cubic-bezier(.22,.8,.24,1)!important}
-.st-key-theme_sw button:hover{transform:translateY(-3px) scale(1.04)}
+.st-key-theme_sw{position:relative!important;display:flex;justify-content:flex-end;width:auto!important}
+.st-key-theme_sw::before{content:"";position:absolute;top:-6px;right:-6px;width:58px;height:58px;border-radius:50%;border:1.5px solid var(--red);opacity:0;pointer-events:none}
+.st-key-theme_sw button{position:relative;width:46px!important;min-width:46px!important;height:46px!important;min-height:46px!important;padding:0!important;border-radius:50%!important;background:var(--sw-bg)!important;border:none!important;overflow:hidden;box-shadow:0 0 0 5px var(--sw-ring),0 10px 24px -12px rgba(0,0,0,.55)!important;transition:transform .35s cubic-bezier(.22,.8,.24,1)!important}
+.st-key-theme_sw button:hover{transform:scale(1.06)}
 .st-key-theme_sw button:active{transform:scale(.94)}
 .st-key-theme_sw button p,.st-key-theme_sw button span{font-size:0!important;opacity:0}
 .st-key-theme_sw button::before{content:"";position:absolute;top:50%;left:-10%;width:120%;height:4px;margin-top:-2px;border-radius:4px;opacity:0;pointer-events:none;background:linear-gradient(90deg,transparent,var(--red) 60%,transparent)}
-.st-key-theme_sw button::after{content:"";position:absolute;inset:0;background:var(--sw-icon) center/22px no-repeat}
+.st-key-theme_sw button::after{content:"";position:absolute;inset:0;background:var(--sw-icon) center/20px no-repeat}
 @keyframes dashR{0%{opacity:0;transform:translateX(-90%) scaleX(.3)}30%{opacity:1}100%{opacity:0;transform:translateX(90%) scaleX(1.1)}}
 @keyframes dashL{0%{opacity:0;transform:translateX(90%) scaleX(.3)}30%{opacity:1}100%{opacity:0;transform:translateX(-90%) scaleX(1.1)}}
 @keyframes ring{0%{opacity:.9;transform:scale(.9)}100%{opacity:0;transform:scale(1.45)}}
@@ -622,20 +626,20 @@ hr{border-color:var(--line)!important;margin:1.4rem 0!important}
 
 /* Portada: foto + nombre + redes, a la izquierda y centrado en pantalla */
 .ra-hero{min-height:calc(72vh - 64px);display:flex;align-items:center;padding:2rem 0}
-.ra-me{display:flex;align-items:center;gap:2.4rem}
-.ra-photo{width:200px;height:250px;flex-shrink:0;border-radius:22px;overflow:hidden;background:#111 center/cover no-repeat;transform:translateZ(0);backface-visibility:hidden;contain:paint;animation:photoIn 1s var(--ease) backwards}
+.ra-me{display:flex;align-items:center;gap:3rem}
+.ra-photo{width:256px;height:320px;flex-shrink:0;border-radius:26px;overflow:hidden;background:#111 center/cover no-repeat;transform:translateZ(0);backface-visibility:hidden;contain:paint;animation:photoIn 1s var(--ease) backwards}
 .ra-photo img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;backface-visibility:hidden}
 .ra-info{min-width:0}
-.ra-hello{font-size:.86rem;color:var(--red);font-weight:600;animation:rise .8s var(--ease) .15s backwards}
-.ra-name{font-size:clamp(2.2rem,4.6vw,3.4rem);font-weight:600;letter-spacing:-.035em;line-height:1.02;color:var(--text);margin:.3rem 0 .5rem;animation:rise .8s var(--ease) .22s backwards}
-.ra-tag{font-size:.95rem;color:var(--muted);margin-bottom:1.4rem;animation:rise .8s var(--ease) .3s backwards}
-.ra-socials{display:flex;flex-direction:column;gap:.35rem;max-width:340px}
-.ra-so{display:flex;align-items:center;gap:.8rem;padding:.55rem .2rem;color:var(--text)!important;text-decoration:none!important;border-radius:12px;animation:rise .8s var(--ease) backwards}
+.ra-hello{font-size:1rem;color:var(--red);font-weight:600;animation:rise .8s var(--ease) .15s backwards}
+.ra-name{font-size:clamp(2.6rem,5.2vw,4.1rem);font-weight:600;letter-spacing:-.035em;line-height:1.02;color:var(--text);margin:.3rem 0 .5rem;animation:rise .8s var(--ease) .22s backwards}
+.ra-tag{font-size:1.05rem;color:var(--muted);margin-bottom:1.6rem;animation:rise .8s var(--ease) .3s backwards}
+.ra-socials{display:flex;flex-direction:column;gap:.45rem;max-width:400px}
+.ra-so{display:flex;align-items:center;gap:1rem;padding:.6rem .2rem;color:var(--text)!important;text-decoration:none!important;border-radius:12px;animation:rise .8s var(--ease) backwards}
 .ra-so:nth-child(1){animation-delay:.38s}.ra-so:nth-child(2){animation-delay:.46s}.ra-so:nth-child(3){animation-delay:.54s}
-.ra-so svg{width:26px;height:26px;flex-shrink:0;display:block;transition:transform .35s var(--ease)}
+.ra-so svg{width:38px;height:38px;flex-shrink:0;display:block;transition:transform .35s var(--ease)}
 .ra-so .tx{line-height:1.2;min-width:0}
-.ra-so b{display:block;font-size:.88rem;font-weight:600;color:var(--text)}
-.ra-so small{display:block;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ra-so b{display:block;font-size:1rem;font-weight:600;color:var(--text)}
+.ra-so small{display:block;font-size:.88rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ra-so:hover svg{transform:scale(1.12)}
 .ra-so:hover b{color:var(--accent)}
 
@@ -776,17 +780,21 @@ hr{border-color:var(--line)!important;margin:1.4rem 0!important}
  .st-key-hdr [data-testid="stColumn"]:first-child{flex:1 1 auto!important;width:auto!important}
  .st-key-hdr [data-testid="stColumn"]:not(:first-child){flex:0 0 auto!important;width:auto!important}
  .ra-brand span{display:none}
- .ra-cart{width:34px;height:34px}
+ .ra-cart{width:40px;height:40px}
  .ra-hero{min-height:auto;padding:2.2rem 0 1.6rem}
- .ra-me{display:grid;grid-template-columns:118px minmax(0,1fr);grid-template-rows:1fr auto auto auto 1fr;column-gap:1.1rem;row-gap:0;width:100%}
- .ra-photo{width:120px;height:150px;border-radius:16px;grid-row:1/6;grid-column:1}
+ .ra-me{display:grid;grid-template-columns:140px minmax(0,1fr);grid-template-rows:1fr auto auto auto 1fr;column-gap:1.1rem;row-gap:0;width:100%}
+ .ra-photo{width:140px;height:175px;border-radius:18px;grid-row:1/6;grid-column:1}
  .ra-info{display:contents}
  .ra-hello{grid-column:2;grid-row:2}
- .ra-name{grid-column:2;grid-row:3;font-size:1.75rem;margin:.15rem 0 .3rem}
+ .ra-name{grid-column:2;grid-row:3;font-size:1.9rem;margin:.15rem 0 .3rem}
  .ra-tag{grid-column:2;grid-row:4;margin:0;font-size:.85rem}
  .ra-socials{grid-column:1/-1;max-width:none;margin-top:1.4rem;flex-direction:row;justify-content:space-between;gap:.4rem}
- .ra-so{flex:1;flex-direction:column;gap:.35rem;text-align:center;padding:.7rem .2rem;border:1px solid var(--line)}
+ .ra-so{flex:1;flex-direction:column;gap:.45rem;text-align:center;padding:.85rem .2rem;border:1px solid var(--line)}
  .ra-so small{display:none}
+ .ra-so svg{width:34px;height:34px}
+ .st-key-nav_acc button p{display:none}
+ .st-key-theme_sw::before{width:52px;height:52px}
+ .st-key-theme_sw button{width:42px!important;min-width:42px!important;height:42px!important;min-height:42px!important}
  .ra-sec .t{font-size:1.6rem}
  [class*="st-key-grid_"]{gap:1.8rem!important}
  [class*="st-key-grid_"] [data-testid="stHorizontalBlock"]{flex-wrap:wrap!important;gap:1.8rem .7rem!important}
@@ -794,7 +802,6 @@ hr{border-color:var(--line)!important;margin:1.4rem 0!important}
  .ra-prof .k{margin-left:0}
  .ra-podium{grid-template-columns:1fr;gap:1rem}
  .ra-foot{flex-direction:column;gap:.5rem;margin-top:3.5rem;padding-bottom:5rem}
- .st-key-theme_sw{left:16px;bottom:16px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 """
@@ -836,7 +843,7 @@ def brand_html() -> str:
 
 def render_header(db, view):
     with st.container(key="hdr"):
-        left, c_shop, c_acc = st.columns([4.6, 1.1, 1.3], vertical_alignment="center")
+        left, c_shop, c_acc, c_theme = st.columns([4.4, 1.1, 1.4, .55], vertical_alignment="center")
         left.markdown(brand_html(), unsafe_allow_html=True)
         with c_shop:
             if view != "home" and st.button("Tienda", key="nav_shop", icon=":material/west:"):
@@ -844,13 +851,15 @@ def render_header(db, view):
         with c_acc:
             u = current_user(db)
             if u:
-                label, icon, target = u["name"].split()[0], ":material/person:", "profile"
+                label, icon, target = u["name"].split()[0], ":material/checkroom:", "profile"
             elif ss.role == "admin":
                 label, icon, target = "Panel", ":material/tune:", "admin"
             else:
-                label, icon, target = "Ingresar", ":material/person:", "login"
+                label, icon, target = "Ingresar", ":material/checkroom:", "login"
             if st.button(label, key="nav_acc", icon=icon, use_container_width=True):
                 go(target)
+        c_theme.button("Tema", key="theme_sw", on_click=_toggle_theme,
+                       help="Cambiar a tema oscuro" if ss.theme == "light" else "Cambiar a tema claro")
 
 
 def render_hero():
@@ -1544,8 +1553,6 @@ def main():
     {"product": lambda: render_product(db, pid), "login": lambda: render_login(db),
      "profile": lambda: render_profile(db), "admin": lambda: render_admin(db)}.get(view, lambda: render_home(db))()
     render_footer()
-    st.button("Tema", key="theme_sw", on_click=_toggle_theme,
-              help="Cambiar a tema oscuro" if ss.theme == "light" else "Cambiar a tema claro")
 
     nav_key = f"{view}:{pid or ''}"
     if ss.get("_last_nav") not in (None, nav_key):
