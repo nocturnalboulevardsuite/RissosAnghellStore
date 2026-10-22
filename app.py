@@ -518,7 +518,7 @@ def logout():
 
 
 def _toggle_theme():
-    ss["_curtain"] = ss.theme
+    ss["_anim"] = True
     ss.theme = "dark" if ss.theme == "light" else "light"
 
 
@@ -615,14 +615,11 @@ hr{border-color:var(--line)!important;margin:1.4rem 0!important}
 .st-key-theme_sw button:hover{transform:scale(1.06)}
 .st-key-theme_sw button:active{transform:scale(.94)}
 .st-key-theme_sw button p,.st-key-theme_sw button span{font-size:0!important;opacity:0}
-.st-key-theme_sw button::before{content:"";position:absolute;top:50%;left:-10%;width:120%;height:4px;margin-top:-2px;border-radius:4px;opacity:0;pointer-events:none;background:linear-gradient(90deg,transparent,var(--red) 60%,transparent)}
 .st-key-theme_sw button::after{content:"";position:absolute;inset:0;background:var(--sw-icon) center/20px no-repeat}
-@keyframes dashR{0%{opacity:0;transform:translateX(-90%) scaleX(.3)}30%{opacity:1}100%{opacity:0;transform:translateX(90%) scaleX(1.1)}}
-@keyframes dashL{0%{opacity:0;transform:translateX(90%) scaleX(.3)}30%{opacity:1}100%{opacity:0;transform:translateX(-90%) scaleX(1.1)}}
-@keyframes ring{0%{opacity:.9;transform:scale(.9)}100%{opacity:0;transform:scale(1.45)}}
-@keyframes iconR{0%{opacity:0;transform:translateX(-60%) rotate(-90deg)}100%{opacity:1;transform:none}}
-@keyframes iconL{0%{opacity:0;transform:translateX(60%) rotate(90deg)}100%{opacity:1;transform:none}}
-.ra-fade{position:fixed;inset:0;z-index:99998;pointer-events:none;animation:fadeOut .6s var(--ease) forwards}
+@keyframes ring{0%{opacity:.55;transform:scale(.85)}100%{opacity:0;transform:scale(1.35)}}
+/* Streamlit atenúa los elementos mientras recarga: lo desactivamos para que nada parpadee */
+[data-stale="true"],.stale-element,[data-testid="stElementContainer"][data-stale="true"]{opacity:1!important;transition:none!important}
+@keyframes iconSpin{0%{opacity:0;transform:rotate(-120deg) scale(.5)}100%{opacity:1;transform:none}}
 
 /* Portada: foto + nombre + redes, a la izquierda y centrado en pantalla */
 .ra-hero{min-height:calc(72vh - 64px);display:flex;align-items:center;padding:2rem 0}
@@ -807,18 +804,33 @@ hr{border-color:var(--line)!important;margin:1.4rem 0!important}
 """
 
 
+def theme_vars(theme: str) -> str:
+    return ":root{" + "".join(f"--{k}:{val};" for k, val in THEMES[theme].items()) + "}"
+
+
 def inject_css():
-    v = THEMES[ss.theme]
-    root = ":root{" + "".join(f"--{k}:{val};" for k, val in v.items()) + "}"
-    html(f"<style>{root}{CSS}</style>")
-    old = ss.pop("_curtain", None)
-    if old:  # el tema anterior se desvanece + estela roja en el switch (solo transform/opacity → 60 fps)
-        dash = "dashR" if ss.theme == "dark" else "dashL"
-        icon = "iconR" if ss.theme == "dark" else "iconL"
-        html(f'<style>.st-key-theme_sw button::before{{animation:{dash} .6s cubic-bezier(.22,.8,.24,1)}}'
-             f'.st-key-theme_sw button::after{{animation:{icon} .55s cubic-bezier(.22,.8,.24,1)}}'
-             '.st-key-theme_sw::before{animation:ring .7s cubic-bezier(.22,.8,.24,1)}</style>'
-             f'<div class="ra-fade" data-n="{uuid.uuid4().hex[:6]}" style="background:{THEMES[old]["bg"]}"></div>')
+    html(f"<style>{theme_vars(ss.theme)}{CSS}</style>")
+
+
+# Transición tipo Pinterest: los colores se funden de un tema al otro, sin capas ni parpadeos.
+# :where() tiene especificidad 0, así no pisa las animaciones propias de cada elemento.
+_FADE_CSS = (
+    "html,body,.stApp,[data-testid=stAppViewContainer],[data-testid=stMain],.st-key-hdr,"
+    ":where(.stApp *){transition:background-color .55s cubic-bezier(.4,0,.2,1),"
+    "color .55s cubic-bezier(.4,0,.2,1),border-color .55s cubic-bezier(.4,0,.2,1),"
+    "fill .55s cubic-bezier(.4,0,.2,1),stroke .55s cubic-bezier(.4,0,.2,1)}"
+    ".st-key-theme_sw button::after{animation:iconSpin .6s cubic-bezier(.22,.8,.24,1)}"
+    ".st-key-theme_sw::before{animation:ring .7s cubic-bezier(.22,.8,.24,1)}"
+)
+
+
+@st.fragment
+def theme_control():
+    """Botón de tema aislado: al tocarlo solo se recarga este botón, nunca la página entera."""
+    css = theme_vars(ss.theme) + (_FADE_CSS if ss.pop("_anim", False) else "")
+    html(f"<style>{css}</style>")
+    st.button("Tema", key="theme_sw", on_click=_toggle_theme,
+              help="Cambiar a tema oscuro" if ss.theme == "light" else "Cambiar a tema claro")
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -858,8 +870,8 @@ def render_header(db, view):
                 label, icon, target = "Ingresar", ":material/checkroom:", "login"
             if st.button(label, key="nav_acc", icon=icon, use_container_width=True):
                 go(target)
-        c_theme.button("Tema", key="theme_sw", on_click=_toggle_theme,
-                       help="Cambiar a tema oscuro" if ss.theme == "light" else "Cambiar a tema claro")
+        with c_theme:
+            theme_control()
 
 
 def render_hero():
