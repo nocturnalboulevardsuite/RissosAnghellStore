@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Rissos Anghell Store · Benjamín Espinoza
-Ejecutar:  streamlit run app.py
-Foto:      deja "benja.jpeg" en la raíz del repositorio (o en /assets).
+RISSOS ANGHELL STORE · Benjamín Espinoza
+──────────────────────────────────────────
+Ejecutar:   streamlit run app.py
+Tu foto:    sube "benja.jpeg" a la raíz del repositorio (al lado de app.py) o a /assets.
+Admin:      contraseña inicial "anghell2026" (cámbiala en Panel › Ajustes).
 """
 import base64
 import hashlib
@@ -20,80 +22,115 @@ from urllib.parse import quote
 import streamlit as st
 from PIL import Image, ImageOps
 
-st.set_page_config(page_title="Rissos Anghell Store", page_icon=":material/storefront:",
+st.set_page_config(page_title="Rissos Anghell Store", page_icon=":material/diamond:",
                    layout="wide", initial_sidebar_state="collapsed")
 
-# ════════════════════════════════════════════════════════════════════════
-# 1. CONFIGURACIÓN
-# ════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════
+# 1 · CONFIGURACIÓN
+# ══════════════════════════════════════════════════════════════════════════
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
 IMG_DIR = DATA_DIR / "images"
 ASSETS_DIR = BASE_DIR / "assets"
 DB_PATH = DATA_DIR / "db.json"
-for _d in (DATA_DIR, IMG_DIR):
-    _d.mkdir(parents=True, exist_ok=True)
+IMG_DIR.mkdir(parents=True, exist_ok=True)
 
 OWNER = {
     "name": "Benjamín Espinoza",
-    "tagline": "Compra y venta de artículos, ropa y más",
+    "tagline": "Compra y venta de artículos, ropa, perfumes y más.",
     "photo_names": ("benja.jpeg", "benja.jpg", "Benja.jpeg", "Benja.jpg", "benja.png", "benja.webp"),
     "whatsapp": "56936992950",
     "whatsapp_display": "+56 9 3699 2950",
     "instagram": "rissos._.anghell",
     "email": "nocturnalboulevardsuite@gmail.com",
+    "city": "Santiago, Chile",
 }
+COPYRIGHT = "Derechos reservados 2027 · Benjamín Espinoza · @Rissos Anghell Store"
 DEFAULT_ADMIN_PASSWORD = "anghell2026"
 
-CATEGORIES = ["Ropa", "Calzado", "Accesorios", "Perfumes", "Figuras", "Tecnología", "Otros"]
+CATEGORIES = ["Perfumes", "Ropa", "Calzado", "Accesorios", "Figuras", "Tecnología", "Otros"]
 SIZED = ("Ropa", "Calzado", "Accesorios")
 STATUSES = ["Disponible", "Agotado", "Fuera de stock"]
 CONDITIONS = ["Nuevo", "Nuevo sin etiqueta", "Usado, como nuevo", "Usado"]
 GENDERS = ["Masculino", "Femenino", "No Binario", "Prefiero no decirlo", "Personalizado"]
+SORTS = ["Destacados", "Precio: menor a mayor", "Precio: mayor a menor", "Más recientes"]
 MADE_IN = ["China", "Taiwán", "EE.UU.", "Vietnam", "Bangladesh", "India", "Indonesia", "Camboya",
            "Tailandia", "Turquía", "Pakistán", "México", "Brasil", "Chile", "Perú", "Italia",
-           "Francia", "España", "Portugal", "Alemania", "Reino Unido", "Japón", "Corea del Sur", "Otro"]
-AVATAR_COLORS = {"Rojo": "#C8364B", "Blanco": "#F2F3F5", "Negro": "#16181D", "Azul": "#2F5BD3",
-                 "Verde": "#2E8F63", "Morado": "#6E4BC4", "Naranjo": "#E07226", "Dorado": "#B9933F",
-                 "Rosado": "#D9668F", "Gris": "#7D8292"}
+           "Francia", "España", "Portugal", "Alemania", "Reino Unido", "Japón", "Corea del Sur",
+           "Emiratos Árabes", "Otro"]
+AVATAR_COLORS = {"Rojo": "#A8182E", "Blanco": "#F4F1EA", "Negro": "#141210", "Azul": "#2C4E9A",
+                 "Verde": "#2F6B50", "Morado": "#5B3F8C", "Naranjo": "#C9682A", "Dorado": "#B08D57",
+                 "Rosado": "#C77A8E", "Gris": "#7C776F"}
 
+
+def _svg_url(svg: str) -> str:
+    return 'url("data:image/svg+xml,' + quote(svg) + '")'
+
+
+_SUN = _svg_url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#8C6B37" '
+                'stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2'
+                'M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>')
+_MOON = _svg_url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#C21F3A">'
+                 '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>')
+
+# Claro: marfil + dorado · Oscuro: negro + rojo
 THEMES = {
-    "light": {"bg": "#F5F6F8", "surface": "#FFFFFF", "surface2": "#EEF0F3", "text": "#11141C",
-              "muted": "#6A7080", "faint": "#9AA0AE", "border": "rgba(17,20,28,.08)",
-              "border2": "rgba(17,20,28,.14)", "accent": "#8E1F33", "accent-ink": "#FFFFFF",
-              "accent-soft": "rgba(142,31,51,.10)", "glow": "rgba(142,31,51,.22)",
-              "shadow": "rgba(17,20,28,.10)", "shadow2": "rgba(17,20,28,.18)",
-              "nav": "rgba(245,246,248,.78)", "chip": "rgba(17,20,28,.045)", "ok": "#1F9D61"},
-    "dark": {"bg": "#0B0E15", "surface": "#12161F", "surface2": "#191E29", "text": "#ECEDF1",
-             "muted": "#8F95A3", "faint": "#5F6573", "border": "rgba(236,237,241,.08)",
-             "border2": "rgba(236,237,241,.16)", "accent": "#E06A80", "accent-ink": "#0B0E15",
-             "accent-soft": "rgba(224,106,128,.12)", "glow": "rgba(224,106,128,.28)",
-             "shadow": "rgba(0,0,0,.45)", "shadow2": "rgba(0,0,0,.65)",
-             "nav": "rgba(11,14,21,.74)", "chip": "rgba(236,237,241,.06)", "ok": "#3DD68C"},
+    "light": {"bg": "#F8F5EE", "bg2": "#F1ECE1", "surface": "#FFFDF8", "text": "#1C1813",
+              "muted": "#7A7163", "faint": "#ABA190", "line": "rgba(140,107,55,.18)",
+              "line2": "rgba(140,107,55,.34)", "accent": "#9C7A43", "accent2": "#C9A96E",
+              "accent-ink": "#FFFDF8", "accent-soft": "rgba(176,141,87,.12)", "chip": "rgba(140,107,55,.08)",
+              "shadow": "rgba(60,44,20,.14)", "head": "rgba(248,245,238,.94)", "ok": "#4E7A4B",
+              "sw-track": "#EFE6D3", "sw-knob": "#FFFDF8", "sw-x": "0px", "sw-icon": _SUN},
+    "dark": {"bg": "#0A0909", "bg2": "#121010", "surface": "#141212", "text": "#F1ECE4",
+             "muted": "#8E867B", "faint": "#5C564E", "line": "rgba(241,236,228,.09)",
+             "line2": "rgba(241,236,228,.18)", "accent": "#C21F3A", "accent2": "#E0485F",
+             "accent-ink": "#FFFFFF", "accent-soft": "rgba(194,31,58,.14)", "chip": "rgba(241,236,228,.06)",
+             "shadow": "rgba(0,0,0,.55)", "head": "rgba(10,9,9,.94)", "ok": "#6FBF73",
+             "sw-track": "#2A1015", "sw-knob": "#0A0909", "sw-x": "26px", "sw-icon": _MOON},
 }
 
-# Íconos dibujados (SVG lineal, estilo uniforme)
-_SV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'
+# Íconos dibujados (trazo fino uniforme)
+_I = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" '
+      'stroke-linecap="round" stroke-linejoin="round">')
 ICON = {
     "whatsapp": '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.26-.46-2.39-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.07.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.7.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.18-1.41-.08-.13-.28-.2-.57-.35zM12.05 21.79h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 0 1 2.89 6.99c0 5.45-4.44 9.88-9.88 9.88zm8.41-18.3A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.69 1.45c6.55 0 11.89-5.34 11.89-11.89 0-3.18-1.24-6.17-3.48-8.42z"/></svg>',
-    "instagram": _SV + '<rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.6" cy="6.4" r=".6" fill="currentColor"/></svg>',
-    "mail": _SV + '<rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="m3 7 9 6 9-6"/></svg>',
-    "phone": _SV + '<path d="M21 16.5v2.6a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 3.1 3.3 2 2 0 0 1 5.1 1h2.6a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.8 8.6a16 16 0 0 0 6 6l1.1-1.1a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>',
-    "pin": _SV + '<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>',
-    "user": _SV + '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>',
-    "calendar": _SV + '<rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>',
-    "globe": _SV + '<circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.6 2.8 3.8 6 3.8 9.5s-1.2 6.7-3.8 9.5c-2.6-2.8-3.8-6-3.8-9.5s1.2-6.7 3.8-9.5z"/></svg>',
-    "ruler": _SV + '<path d="M3 17 17 3l4 4L7 21z"/><path d="m7 13 2 2M10 10l2 2M13 7l2 2"/></svg>',
-    "tag": _SV + '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.3"/></svg>',
-    "spark": _SV + '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/></svg>',
-    "arrow": _SV + '<path d="M7 17 17 7M8 7h9v9"/></svg>',
-    "gender": _SV + '<circle cx="10" cy="14" r="5.5"/><path d="M14 10l6-6M15 4h5v5"/></svg>',
-    "bag": _SV + '<path d="M5 8h14l-1 13H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
+    "instagram": _I + '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.6" r=".7" fill="currentColor"/></svg>',
+    "mail": _I + '<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="m3.5 6.5 8.5 6 8.5-6"/></svg>',
+    "arrow": _I + '<path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+    "phone": _I + '<path d="M21 16.5v2.6a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 3.1 3.3 2 2 0 0 1 5.1 1h2.6a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.8 8.6a16 16 0 0 0 6 6l1.1-1.1a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>',
+    "pin": _I + '<path d="M19 10c0 5.5-7 11-7 11s-7-5.5-7-11a7 7 0 0 1 14 0z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+    "calendar": _I + '<rect x="3" y="4.5" width="18" height="16.5" rx="1.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>',
+    "globe": _I + '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.6 5.8 3.6 9s-1.1 6.3-3.6 9c-2.5-2.7-3.6-5.8-3.6-9S9.5 5.7 12 3z"/></svg>',
+    "ruler": _I + '<path d="M3 17 17 3l4 4L7 21z"/><path d="m7 13 2 2M10 10l2 2M13 7l2 2"/></svg>',
+    "tag": _I + '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg>',
+    "spark": _I + '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>',
+    "box": _I + '<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>',
+    "check": _I + '<path d="M20 6 9 17l-5-5"/></svg>',
+    "truck": _I + '<path d="M2 6h11v10H2zM13 10h4l4 3v3h-8z"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>',
+    "chat": _I + '<path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.2A8 8 0 1 1 21 12z"/></svg>',
+    "gender": _I + '<circle cx="10" cy="14" r="5"/><path d="M14 10l6-6M15 4h5v5"/></svg>',
+    "bag": _I + '<path d="M5 8h14l-1 13H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
 }
 
-# ════════════════════════════════════════════════════════════════════════
-# 2. UTILIDADES
-# ════════════════════════════════════════════════════════════════════════
+# Logo: monograma R·A·S dentro de un sello
+LOGO = (
+    '<svg class="ra-logo-svg" viewBox="0 0 120 120" fill="none" stroke="currentColor">'
+    '<circle class="ra-ring" cx="60" cy="60" r="56" stroke-width="1"/>'
+    '<circle cx="60" cy="60" r="50" stroke-width=".5" opacity=".55"/>'
+    '<path d="M60 6 l3.2 4 -3.2 4 -3.2 -4z" fill="currentColor" stroke="none"/>'
+    '<path d="M60 106 l3.2 4 -3.2 4 -3.2 -4z" fill="currentColor" stroke="none"/>'
+    '<text x="60" y="72" text-anchor="middle" fill="currentColor" stroke="none" '
+    'font-family="Cormorant Garamond,Didot,Georgia,serif">'
+    '<tspan font-size="30" font-weight="500">R</tspan>'
+    '<tspan font-size="44" font-style="italic" font-weight="400" dy="2">A</tspan>'
+    '<tspan font-size="30" font-weight="500" dy="-2">S</tspan></text>'
+    '<path d="M34 84 H86" stroke-width=".6" opacity=".6"/></svg>'
+)
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# 2 · UTILIDADES
+# ══════════════════════════════════════════════════════════════════════════
 def esc(s) -> str:
     return htmllib.escape(str(s or ""))
 
@@ -150,53 +187,46 @@ def b64svg(svg: str) -> str:
     return "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode()
 
 
-# ════════════════════════════════════════════════════════════════════════
-# 3. IMÁGENES
-# ════════════════════════════════════════════════════════════════════════
-# Ilustraciones lineales para las fotos de muestra (sin emojis)
+# ══════════════════════════════════════════════════════════════════════════
+# 3 · IMÁGENES (todo en caché para que la página no tenga lag)
+# ══════════════════════════════════════════════════════════════════════════
 ILLUS = {
-    "tshirt": '<path d="M300 330 L365 292 C380 322 420 322 435 292 L500 330 L565 425 L512 455 L490 425 L490 712 L310 712 L310 425 L288 455 L235 425 Z"/><path d="M365 292 C380 340 420 340 435 292"/><path d="M340 640 H460" opacity=".5"/>',
+    "tshirt": '<path d="M300 330 L365 292 C380 322 420 322 435 292 L500 330 L565 425 L512 455 L490 425 L490 712 L310 712 L310 425 L288 455 L235 425 Z"/><path d="M365 292 C380 340 420 340 435 292"/>',
     "jeans": '<path d="M318 290 H482 L506 712 H424 L400 440 L376 712 H294 Z"/><path d="M318 330 H482"/><path d="M400 330 V420"/><path d="M332 332 C336 368 358 380 380 382"/><path d="M468 332 C464 368 442 380 420 382"/>',
-    "perfume": '<rect x="352" y="292" width="96" height="70" rx="12"/><rect x="378" y="362" width="44" height="46"/><rect x="300" y="408" width="200" height="304" rx="34"/><rect x="345" y="505" width="110" height="96" rx="8"/><path d="M330 450 C330 440 340 432 350 432" opacity=".55"/>',
+    "perfume": '<rect x="356" y="268" width="88" height="74" rx="4"/><path d="M380 342 V392 H420 V342"/><path d="M300 392 H500 L516 700 C516 716 504 724 488 724 H312 C296 724 284 716 284 700 Z"/><rect x="340" y="500" width="120" height="110" rx="2"/><path d="M360 540 H440 M372 570 H428" opacity=".6"/>',
     "cap": '<path d="M255 560 C255 420 320 372 400 372 C480 372 545 420 545 560 Z"/><path d="M255 560 C330 590 470 590 545 560 C600 575 620 600 590 615 C520 640 330 640 255 600 Z"/><path d="M400 372 C380 420 372 500 372 572"/><circle cx="400" cy="368" r="10"/>',
     "figure": '<ellipse cx="400" cy="705" rx="140" ry="26"/><circle cx="400" cy="372" r="54"/><path d="M366 334 L344 296 M434 334 L456 296"/><path d="M346 440 C346 428 454 428 454 440 L470 600 L430 600 L420 690 L380 690 L370 600 L330 600 Z"/><path d="M346 452 L292 540 M454 452 L508 540"/>',
-    "monitor": '<rect x="236" y="320" width="328" height="226" rx="18"/><rect x="262" y="344" width="276" height="178" rx="6"/><path d="M380 546 L370 640 H430 L420 546"/><path d="M322 650 H478"/><path d="M290 470 L340 420 L380 455 L430 395 L510 470" opacity=".55"/>',
+    "monitor": '<rect x="236" y="320" width="328" height="226" rx="10"/><rect x="262" y="344" width="276" height="178" rx="3"/><path d="M380 546 L370 640 H430 L420 546"/><path d="M322 650 H478"/>',
     "bag": '<path d="M290 420 H510 L530 712 H270 Z"/><path d="M345 420 V380 C345 330 455 330 455 380 V420"/>',
 }
-PALETTES = [("#E9ECF2", "#D3D9E4", "#1B2233"), ("#F1E6E8", "#DEC6CB", "#5A1626"),
-            ("#1B2233", "#2C3650", "#E9ECF2"), ("#E4EDE9", "#C9D9D2", "#1F3B32"),
-            ("#ECE7F3", "#D4CBE3", "#3A2A5A"), ("#5A1626", "#2A0B12", "#F1E6E8")]
+# fondo 1, fondo 2, trazo
+PALETTES = [("#F4EEE2", "#E7DAC2", "#8C6B37"), ("#1A1817", "#0E0D0C", "#C9A96E"),
+            ("#F7F3EA", "#ECE2D0", "#5A4527"), ("#4A0F1A", "#22070D", "#E8CFA0"),
+            ("#EDE8E0", "#D9D1C4", "#2E2820"), ("#EFE6D3", "#DCC9A6", "#6E2330")]
 
 
-@st.cache_data(show_spinner=False, max_entries=200)
+@st.cache_data(show_spinner=False, max_entries=300)
 def demo_svg(kind: str, idx: int) -> str:
     a, b, fg = PALETTES[idx % len(PALETTES)]
-    tilt = (-6, 0, 5, -3, 4, -5)[idx % 6]
-    scale = (1, .9, 1.06, .95, 1.02, .92)[idx % 6]
-    body = ILLUS.get(kind, ILLUS["bag"])
     return b64svg(
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">'
-        f'<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{a}"/>'
-        f'<stop offset="1" stop-color="{b}"/></linearGradient></defs>'
-        '<rect width="800" height="1000" fill="url(#g)"/>'
-        f'<circle cx="400" cy="500" r="300" fill="{fg}" fill-opacity=".05"/>'
-        f'<g transform="translate(400 500) rotate({tilt}) scale({scale}) translate(-400 -500)">'
-        '<g><animateTransform attributeName="transform" type="translate" values="0 0;0 -14;0 0" '
-        'dur="6s" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/>'
-        f'<g fill="{fg}" fill-opacity=".06" stroke="{fg}" stroke-width="7" stroke-linecap="round" '
-        f'stroke-linejoin="round">{body}</g></g></g>'
-        f'<text x="400" y="925" font-size="22" letter-spacing="5" text-anchor="middle" fill="{fg}" '
-        'fill-opacity=".45" font-family="Helvetica,Arial,sans-serif">foto de muestra</text></svg>')
+        f'<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{a}"/>'
+        f'<stop offset="1" stop-color="{b}"/></linearGradient></defs><rect width="800" height="1000" fill="url(#g)"/>'
+        f'<rect x="40" y="40" width="720" height="920" fill="none" stroke="{fg}" stroke-opacity=".22" stroke-width="2"/>'
+        f'<g fill="{fg}" fill-opacity=".05" stroke="{fg}" stroke-width="5" stroke-linecap="round" '
+        f'stroke-linejoin="round" transform="translate(0 20)">{ILLUS.get(kind, ILLUS["bag"])}</g>'
+        f'<text x="400" y="905" font-size="20" letter-spacing="8" text-anchor="middle" fill="{fg}" '
+        'fill-opacity=".55" font-family="Georgia,serif">FOTO DE MUESTRA</text></svg>')
 
 
-@st.cache_data(show_spinner=False, max_entries=600)
-def _file_uri(path: str, mtime: float, max_side: int | None = None) -> str:
+@st.cache_data(show_spinner=False, max_entries=800)
+def _file_uri(path: str, mtime: float, square: int = 0) -> str:
     p = Path(path)
-    if max_side:
-        img = ImageOps.exif_transpose(Image.open(p)).convert("RGB")
-        img.thumbnail((max_side, max_side))
+    if square:  # recorte cuadrado (foto de perfil)
+        img = ImageOps.fit(ImageOps.exif_transpose(Image.open(p)).convert("RGB"), (square, square),
+                           Image.LANCZOS, centering=(0.5, 0.35))
         buf = io.BytesIO()
-        img.save(buf, "JPEG", quality=86, optimize=True)
+        img.save(buf, "JPEG", quality=88, optimize=True)
         return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
     mime = {"png": "image/png", "webp": "image/webp"}.get(p.suffix.lower().lstrip("."), "image/jpeg")
     return f"data:{mime};base64," + base64.b64encode(p.read_bytes()).decode()
@@ -206,8 +236,8 @@ def img_src(entry: str, thumb: bool = False) -> str:
     if not entry:
         return demo_svg("bag", 0)
     if entry.startswith("demo:"):
-        _, kind, idx = (entry.split(":") + ["0"])[:3]
-        return demo_svg(kind, int(idx))
+        parts = (entry.split(":") + ["0", "0"])[:3]
+        return demo_svg(parts[1], int(parts[2]) if parts[2].isdigit() else 0)
     p = DATA_DIR / entry
     if thumb:
         t = p.with_name(p.stem + "_t.jpg")
@@ -228,8 +258,8 @@ def save_upload(uploaded, max_side: int = 1400) -> str:
     big = img.copy()
     big.thumbnail((max_side, max_side))
     big.save(IMG_DIR / f"{stem}.jpg", "JPEG", quality=86, optimize=True)
-    img.thumbnail((560, 560))
-    img.save(IMG_DIR / f"{stem}_t.jpg", "JPEG", quality=82, optimize=True)
+    img.thumbnail((520, 520))
+    img.save(IMG_DIR / f"{stem}_t.jpg", "JPEG", quality=80, optimize=True)
     return f"images/{stem}.jpg"
 
 
@@ -243,20 +273,20 @@ def delete_image(entry: str | None):
                 pass
 
 
-@st.cache_data(show_spinner=False, max_entries=50)
+@st.cache_data(show_spinner=False, max_entries=40)
 def avatar_svg(color: str) -> str:
     c = color.lstrip("#")
     r, g, b = int(c[0:2], 16), int(c[2:4], 16), int(c[4:6], 16)
-    fg = "#1B1F2A" if (r * 299 + g * 587 + b * 114) / 1000 > 170 else "#FFFFFF"
+    fg = "#1C1813" if (r * 299 + g * 587 + b * 114) / 1000 > 170 else "#FFFDF8"
     return b64svg(
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><clipPath id="c">'
-        '<circle cx="50" cy="50" r="50"/></clipPath></defs><g clip-path="url(#c)">'
-        f'<rect width="100" height="100" fill="{color}"/><circle cx="50" cy="39" r="17" fill="{fg}" fill-opacity=".9"/>'
-        f'<path d="M14 100c0-22 16-36 36-36s36 14 36 36z" fill="{fg}" fill-opacity=".9"/></g></svg>')
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><clipPath id="c"><circle cx="50" '
+        f'cy="50" r="50"/></clipPath></defs><g clip-path="url(#c)"><rect width="100" height="100" fill="{color}"/>'
+        f'<circle cx="50" cy="39" r="16" fill="{fg}" fill-opacity=".9"/>'
+        f'<path d="M15 100c0-21 15-34 35-34s35 13 35 34z" fill="{fg}" fill-opacity=".9"/></g></svg>')
 
 
 def user_avatar(u) -> str:
-    return img_src(u["photo"], thumb=True) if u.get("photo") else avatar_svg(u.get("avatar_color") or "#C8364B")
+    return img_src(u["photo"], thumb=True) if u.get("photo") else avatar_svg(u.get("avatar_color") or "#A8182E")
 
 
 def find_owner_photo() -> Path | None:
@@ -270,49 +300,46 @@ def find_owner_photo() -> Path | None:
 def owner_photo() -> str:
     p = find_owner_photo()
     if p:
-        return _file_uri(str(p), p.stat().st_mtime, 360)  # se reduce para que cargue rápido
-    return b64svg(
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#8E1F33"/>'
-        '<text x="50" y="62" font-size="34" text-anchor="middle" fill="#fff" font-family="Georgia,serif" '
-        'font-style="italic">BE</text></svg>')
+        return _file_uri(str(p), p.stat().st_mtime, 420)
+    return b64svg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" '
+                  'fill="#1C1813"/><text x="50" y="62" font-size="32" text-anchor="middle" fill="#C9A96E" '
+                  'font-family="Georgia,serif" font-style="italic">BE</text></svg>')
 
 
-# ════════════════════════════════════════════════════════════════════════
-# 4. BASE DE DATOS (JSON)
-# ════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════
+# 4 · BASE DE DATOS (JSON local)
+# ══════════════════════════════════════════════════════════════════════════
 def seed_db() -> dict:
     t = now_iso()
     rows = [
-        ("Polera roja", "Ropa", 12990, "L", "China", "Rissos Basics", "Nuevo", "Disponible",
-         "Algodón peinado, corte regular y color que no se lava.",
-         "Polera de algodón peinado de gramaje medio, suave al tacto y con buena caída. El rojo es intenso y se mantiene lavado tras lavado.",
-         ["100% algodón", "Corte regular fit", "Cuello redondo reforzado", "Lavar en frío"], "tshirt", [1, 0, 3]),
-        ("Pantalón Jean negro", "Ropa", 24990, "42", "Bangladesh", "Denim Co.", "Usado, como nuevo", "Disponible",
-         "Jean negro de corte recto, usado dos veces.",
-         "Jean negro de mezclilla firme con un toque de elasticidad. Corte recto que funciona con zapatillas o botines. Sin desgaste visible.",
-         ["98% algodón, 2% elastano", "Corte recto", "5 bolsillos", "Tiro medio"], "jeans", [2, 0, 4]),
         ("Dior Sauvage Parfum 150ml", "Perfumes", 129990, "", "Francia", "Dior", "Nuevo", "Disponible",
          "Perfume original, sellado, 150 ml.",
          "Dior Sauvage en su versión Parfum: más profunda y amaderada que el EDT, con notas de bergamota, sándalo y vainilla. Caja sellada.",
-         ["Contenido: 150 ml", "Concentración: Parfum", "Caja sellada", "Original"], "perfume", [0, 5, 4]),
-        ("Gorra F1", "Accesorios", 19990, "Ajustable", "Vietnam", "Formula 1", "Nuevo", "Agotado",
-         "Gorra de seis paneles con bordado frontal.",
-         "Gorra de seis paneles con logo bordado y cierre ajustable trasero. Visera curva y forro interior transpirable.",
-         ["Talla única ajustable", "Logo bordado", "Cierre de velcro", "Visera curva"], "cap", [1, 2]),
+         ["Contenido: 150 ml", "Concentración: Parfum", "Familia: amaderada aromática", "Caja sellada, original"], "perfume", [1, 0, 3]),
+        ("Polera roja", "Ropa", 12990, "L", "China", "Rissos Basics", "Nuevo", "Disponible",
+         "Algodón peinado, corte regular y color que no se lava.",
+         "Polera de algodón peinado de gramaje medio, suave al tacto y con buena caída. El rojo es intenso y se mantiene lavado tras lavado.",
+         ["100% algodón", "Corte regular fit", "Cuello redondo reforzado", "Lavar en frío"], "tshirt", [5, 2, 0]),
+        ("Pantalón Jean negro", "Ropa", 24990, "42", "Bangladesh", "Denim Co.", "Usado, como nuevo", "Disponible",
+         "Jean negro de corte recto, usado dos veces.",
+         "Jean negro de mezclilla firme con un toque de elasticidad. Corte recto que funciona con zapatillas o botines. Sin desgaste visible.",
+         ["98% algodón, 2% elastano", "Corte recto", "5 bolsillos", "Tiro medio"], "jeans", [1, 4, 2]),
         ("Figura de Freezer", "Figuras", 34990, "", "China", "Banpresto", "Nuevo", "Disponible",
          "Figura de colección de Dragon Ball, en su caja.",
          "Figura de Freezer en su forma final, con detalles pintados y base incluida. Ideal para colección; caja en buen estado.",
-         ["Altura aprox.: 18 cm", "Material: PVC", "Base incluida", "Caja original"], "figure", [4, 2, 0]),
+         ["Altura aprox.: 18 cm", "Material: PVC", "Base incluida", "Caja original"], "figure", [2, 3, 0]),
         ("Monitor 144Hz", "Tecnología", 159990, "", "Taiwán", "Genérico 24\"", "Usado, como nuevo", "Disponible",
          "24 pulgadas, Full HD, 144 Hz y 1 ms.",
          "Monitor gamer de 24 pulgadas con panel de 144 Hz, ideal para juegos competitivos. Sin píxeles muertos, con cables y caja.",
-         ["24\" Full HD 1920×1080", "144 Hz, 1 ms", "HDMI y DisplayPort", "Incluye cables"], "monitor", [2, 0, 3]),
+         ["24\" Full HD 1920×1080", "144 Hz, 1 ms", "HDMI y DisplayPort", "Incluye cables"], "monitor", [4, 1, 0]),
+        ("Gorra F1", "Accesorios", 19990, "Ajustable", "Vietnam", "Formula 1", "Nuevo", "Agotado",
+         "Gorra de seis paneles con bordado frontal.",
+         "Gorra de seis paneles con logo bordado y cierre ajustable trasero. Visera curva y forro interior transpirable.",
+         ["Talla única ajustable", "Logo bordado", "Cierre de velcro", "Visera curva"], "cap", [3, 0]),
     ]
-    prods = []
-    for (name, cat, price, size, made, brand, cond, status, short, desc, det, kind, pals) in rows:
-        prods.append(dict(id=new_id(), name=name, category=cat, price=price, size=size, made_in=made,
-                          brand=brand, condition=cond, status=status, short=short, description=desc,
-                          details=det, images=[f"demo:{kind}:{i}" for i in pals], created=t))
+    prods = [dict(id=new_id(), name=n, category=c, price=pr, size=sz, made_in=m, brand=br, condition=co,
+                  status=stt, short=sh, description=de, details=dt, images=[f"demo:{k}:{i}" for i in pals],
+                  created=t) for (n, c, pr, sz, m, br, co, stt, sh, de, dt, k, pals) in rows]
     return {"products": prods, "users": [], "purchases": [], "settings": {}}
 
 
@@ -323,8 +350,7 @@ def load_db() -> dict:
         db = json.load(f)
     for k, v in (("products", []), ("users", []), ("purchases", []), ("settings", {})):
         db.setdefault(k, v)
-    # migración: fotos de muestra antiguas con emoji pasan a ilustración
-    for p in db["products"]:
+    for p in db["products"]:  # compatibilidad con versiones anteriores
         p["images"] = [e if not e.startswith("demo:") or e.split(":")[1] in ILLUS else "demo:bag:0"
                        for e in p.get("images") or []]
     return db
@@ -369,9 +395,9 @@ def check_admin(db, pw: str) -> bool:
     return secrets.compare_digest(pw, expected)
 
 
-# ════════════════════════════════════════════════════════════════════════
-# 5. LINKS (correo, WhatsApp, Instagram, producto)
-# ════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════
+# 5 · LINKS
+# ══════════════════════════════════════════════════════════════════════════
 def app_base_url(db) -> str:
     s = (db["settings"].get("base_url") or "").strip()
     if s:
@@ -411,8 +437,7 @@ IG_LINK = f"https://www.instagram.com/{OWNER['instagram']}/"
 def consult_message(db, p):
     sl = size_label(p)
     subject = f"Consulta de Stock – {p['name']}" + (f" ({sl})" if sl else "")
-    lines = ["Hola Benjamín,", "", "Quiero consultar el stock de este producto:", "",
-             f"• Producto: {p['name']}"]
+    lines = ["Hola Benjamín,", "", "Quiero consultar el stock de este producto:", "", f"• Producto: {p['name']}"]
     if sl:
         lines.append(f"• {sl if p.get('category') in SIZED else 'Medida: ' + p['size']}")
     lines += [f"• Precio: {money(p['price'])}", f"• Link: {product_link(db, p['id'])}", ""]
@@ -423,12 +448,12 @@ def consult_message(db, p):
     return subject, "\n".join(lines)
 
 
-# ════════════════════════════════════════════════════════════════════════
-# 6. SESIÓN Y NAVEGACIÓN
-# ════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════
+# 6 · SESIÓN Y NAVEGACIÓN
+# ══════════════════════════════════════════════════════════════════════════
 ss = st.session_state
 ss.setdefault("theme", "light")
-ss.setdefault("role", None)          # None | "user" | "admin"
+ss.setdefault("role", None)
 ss.setdefault("user_id", None)
 ss.setdefault("view", "home")
 
@@ -455,266 +480,341 @@ def logout():
     go("home")
 
 
-# ════════════════════════════════════════════════════════════════════════
-# 7. ESTILOS
-# ════════════════════════════════════════════════════════════════════════
-CSS = r"""
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&display=swap');
-:root{--ease:cubic-bezier(.22,1,.36,1);--serif:'Instrument Serif',Georgia,serif;--sans:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;}
-html{font-size:15px}
-html,body,.stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"]{background:var(--bg)!important;color:var(--text)!important;font-family:var(--sans)}
-.stApp{transition:background-color .6s var(--ease),color .6s var(--ease)}
-.stApp *{transition-property:background-color,border-color,color,box-shadow,opacity;transition-duration:.35s;transition-timing-function:var(--ease)}
-[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stDecoration"],#MainMenu,footer,[data-testid="stStatusWidget"],[data-testid="stSidebarCollapsedControl"],[data-testid="stAppDeployButton"]{display:none!important}
-.block-container,[data-testid="stMainBlockContainer"]{padding:.4rem 1.2rem 2rem!important;max-width:1120px!important}
-.stApp h1,.stApp h2,.stApp h3{font-family:var(--serif)!important;color:var(--text)!important;font-weight:400!important}
-.stApp [data-testid="stMarkdownContainer"] p,.stApp [data-testid="stMarkdownContainer"] li{color:var(--text);font-size:.95rem}
-[data-testid="stWidgetLabel"] p{color:var(--muted)!important;font-size:.8rem!important;font-weight:600!important}
-[data-testid="stCaptionContainer"],[data-testid="stCaptionContainer"] p{color:var(--muted)!important;font-size:.8rem!important}
-::selection{background:var(--accent);color:var(--accent-ink)}
-::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:8px}
-:focus-visible{outline:2px solid var(--accent)!important;outline-offset:2px}
-[data-testid="stVerticalBlock"]{gap:.75rem}
+def _toggle_theme():
+    ss["_curtain"] = ss.theme
+    ss.theme = "dark" if ss.theme == "light" else "light"
 
-/* Inputs */
-.stApp input,.stApp textarea{color:var(--text)!important;-webkit-text-fill-color:var(--text)!important;caret-color:var(--accent);font-size:.92rem!important}
+
+# ══════════════════════════════════════════════════════════════════════════
+# 7 · ESTILOS  (solo se animan transform y opacity → fluido, sin lag)
+# ══════════════════════════════════════════════════════════════════════════
+CSS = r"""
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap');
+:root{--ease:cubic-bezier(.25,.8,.25,1);--slow:cubic-bezier(.65,0,.35,1);--serif:'Cormorant Garamond',Didot,Georgia,serif;--sans:'Jost','Futura','Century Gothic',system-ui,sans-serif}
+html{font-size:15px;scroll-behavior:smooth}
+.stApp,[data-testid="stMain"]{overflow-x:hidden!important}
+[class*="st-key-grid_"]{gap:2.4rem!important}
+html,body,.stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"]{background:var(--bg)!important;color:var(--text)!important;font-family:var(--sans)}
+[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stDecoration"],#MainMenu,footer,[data-testid="stStatusWidget"],[data-testid="stSidebarCollapsedControl"],[data-testid="stAppDeployButton"]{display:none!important}
+.block-container,[data-testid="stMainBlockContainer"]{padding:0 1.4rem 1.5rem!important;max-width:1160px!important}
+[data-testid="stVerticalBlock"]{gap:.8rem}
+.stApp [data-testid="stMarkdownContainer"] p,.stApp [data-testid="stMarkdownContainer"] li{color:var(--text);font-size:.95rem;font-weight:300}
+[data-testid="stWidgetLabel"] p{color:var(--muted)!important;font-size:.72rem!important;font-weight:500!important;letter-spacing:.12em;text-transform:uppercase}
+[data-testid="stCaptionContainer"],[data-testid="stCaptionContainer"] p{color:var(--muted)!important;font-size:.78rem!important}
+::selection{background:var(--accent);color:var(--accent-ink)}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:8px}
+:focus-visible{outline:1.5px solid var(--accent)!important;outline-offset:2px}
+.st-key-scrolltop{position:absolute!important;height:0!important;overflow:hidden;visibility:hidden;pointer-events:none}
+
+/* Formularios */
+.stApp input,.stApp textarea{color:var(--text)!important;-webkit-text-fill-color:var(--text)!important;caret-color:var(--accent);font-size:.92rem!important;font-family:var(--sans)!important}
 .stApp input::placeholder,.stApp textarea::placeholder{color:var(--faint)!important;-webkit-text-fill-color:var(--faint)!important}
-[data-baseweb="input"],[data-baseweb="textarea"],[data-baseweb="base-input"],[data-baseweb="select"]>div,[data-testid$="RootElement"]{background:var(--surface)!important;border:1px solid var(--border2)!important;border-radius:10px!important}
+[data-baseweb="input"],[data-baseweb="textarea"],[data-baseweb="base-input"],[data-baseweb="select"]>div,[data-testid$="RootElement"]{background:var(--surface)!important;border:1px solid var(--line2)!important;border-radius:2px!important}
 [data-testid$="RootElement"]:focus-within,[data-baseweb="input"]:focus-within,[data-baseweb="textarea"]:focus-within,[data-baseweb="select"]>div:focus-within{border-color:var(--accent)!important;box-shadow:0 0 0 3px var(--accent-soft)!important}
+.react-aria-ComboBox [role="group"],[data-testid="stSelectbox"] [role="group"],[data-testid="stMultiSelect"] [role="group"]{background:var(--surface)!important;border:1px solid var(--line2)!important;border-radius:2px!important;min-height:2.5rem}
+.react-aria-ComboBox [role="group"]:focus-within{border-color:var(--accent)!important;box-shadow:0 0 0 3px var(--accent-soft)!important}
+.react-aria-ComboBox button{color:var(--muted)!important;background:transparent!important}
+[role="listbox"],.react-aria-Popover,.react-aria-ListBox{background:var(--surface)!important;border-color:var(--line2)!important;border-radius:2px!important}
+[role="option"]{color:var(--text)!important}
+[role="option"][data-focused="true"],[role="option"][aria-selected="true"],[role="option"]:hover{background:var(--chip)!important}
 [data-baseweb="select"] *{color:var(--text)!important}
 [data-baseweb="select"] svg{fill:var(--muted)!important}
-[data-baseweb="popover"] ul,[data-baseweb="popover"] [data-baseweb="menu"]{background:var(--surface)!important;border:1px solid var(--border);border-radius:12px}
+[data-baseweb="popover"] ul,[data-baseweb="popover"] [data-baseweb="menu"]{background:var(--surface)!important;border:1px solid var(--line2);border-radius:2px}
 [data-baseweb="popover"] li{color:var(--text)!important;background:transparent!important}
 [data-baseweb="popover"] li:hover,[data-baseweb="popover"] li[aria-selected="true"]{background:var(--chip)!important}
-[data-testid="stNumberInput"] button{background:var(--surface2)!important;color:var(--text)!important;border-color:var(--border)!important}
-[data-testid="stRadio"] label p,[data-testid="stCheckbox"] label p,[data-testid="stToggle"] label p{color:var(--text)!important;font-weight:500!important;font-size:.88rem!important}
-[data-testid="stFileUploaderDropzone"]{background:var(--surface2)!important;border:1px dashed var(--border2)!important;border-radius:12px!important}
+[data-testid="stNumberInput"] button{background:var(--bg2)!important;color:var(--text)!important;border-color:var(--line)!important}
+[data-testid="stRadio"] label p,[data-testid="stCheckbox"] label p,[data-testid="stToggle"] label p{color:var(--text)!important;font-weight:400!important;font-size:.88rem!important;letter-spacing:0;text-transform:none}
+[data-testid="stFileUploaderDropzone"]{background:var(--bg2)!important;border:1px dashed var(--line2)!important;border-radius:2px!important}
 [data-testid="stFileUploaderDropzone"] *{color:var(--muted)!important}
 [data-testid="stFileUploaderFile"] *{color:var(--text)!important}
 [data-baseweb="calendar"],[data-baseweb="calendar"] *{background-color:var(--surface)!important;color:var(--text)!important}
-[data-testid="stTooltipContent"]{background:var(--text)!important;color:var(--bg)!important}
 
-/* Botones */
-.stButton button,.stFormSubmitButton button,.stDownloadButton button{background:var(--surface)!important;color:var(--text)!important;border:1px solid var(--border2)!important;border-radius:10px!important;font-weight:600!important;font-size:.88rem!important;min-height:2.35rem;padding:.3rem .9rem!important;transition:all .35s var(--ease)!important}
-.stButton button p,.stFormSubmitButton button p,.stDownloadButton button p{color:inherit!important;font-weight:600!important;font-size:.88rem!important}
-.stButton button:hover,.stFormSubmitButton button:hover,.stDownloadButton button:hover{border-color:var(--text)!important;transform:translateY(-1px);box-shadow:0 8px 20px -12px var(--shadow2)!important}
-.stButton button:active{transform:scale(.97)}
+/* Botones: rectos, finos, con letras espaciadas */
+.stButton button,.stFormSubmitButton button,.stDownloadButton button{background:transparent!important;color:var(--text)!important;border:1px solid var(--line2)!important;border-radius:2px!important;min-height:2.4rem;padding:.3rem 1rem!important;transition:border-color .3s var(--ease),background-color .3s var(--ease),color .3s var(--ease),transform .3s var(--ease)!important}
+.stButton button p,.stFormSubmitButton button p,.stDownloadButton button p{color:inherit!important;font-family:var(--sans)!important;font-weight:500!important;font-size:.74rem!important;letter-spacing:.14em;text-transform:uppercase}
+.stButton button:hover,.stFormSubmitButton button:hover,.stDownloadButton button:hover{border-color:var(--accent)!important;color:var(--accent)!important}
+.stButton button:active{transform:scale(.98)}
 .stApp button[kind="primary"],.stApp button[kind="primaryFormSubmit"],.stApp [data-testid^="stBaseButton-primary"]{background:var(--text)!important;color:var(--bg)!important;border-color:var(--text)!important}
-.stApp button[kind="primary"]:hover,.stApp button[kind="primaryFormSubmit"]:hover,.stApp [data-testid^="stBaseButton-primary"]:hover{background:var(--accent)!important;border-color:var(--accent)!important;color:var(--accent-ink)!important;box-shadow:0 12px 26px -12px var(--glow)!important}
-[data-testid="stButtonGroup"] button[role="radio"]{border-radius:999px!important;background:transparent!important;border:1px solid var(--border2)!important;color:var(--muted)!important;padding:.2rem .85rem!important;min-height:2rem!important;font-size:.84rem!important}
-[data-testid="stButtonGroup"] button[role="radio"] p{color:inherit!important;font-size:.84rem!important}
-[data-testid="stButtonGroup"] button[role="radio"]:hover{color:var(--text)!important;border-color:var(--text)!important}
-[data-testid="stButtonGroup"] button[aria-checked="true"]{background:var(--text)!important;color:var(--bg)!important;border-color:var(--text)!important}
+.stApp button[kind="primary"]:hover,.stApp button[kind="primaryFormSubmit"]:hover,.stApp [data-testid^="stBaseButton-primary"]:hover{background:var(--accent)!important;border-color:var(--accent)!important;color:var(--accent-ink)!important}
+[data-testid="stButtonGroup"] button[role="radio"]{border-radius:0!important;background:transparent!important;border:none!important;border-bottom:1px solid transparent!important;color:var(--muted)!important;padding:.2rem .1rem!important;margin-right:1rem;min-height:1.8rem!important}
+[data-testid="stButtonGroup"] button[role="radio"] p{color:inherit!important;font-size:.78rem!important;letter-spacing:.14em;text-transform:uppercase;font-weight:500!important}
+[data-testid="stButtonGroup"] button[role="radio"]:hover{color:var(--text)!important}
+[data-testid="stButtonGroup"] button[aria-checked="true"]{color:var(--text)!important;border-bottom-color:var(--accent)!important}
 
-/* Tabs, expander, contenedores */
-.stTabs [data-baseweb="tab-list"]{gap:.2rem;border-bottom:1px solid var(--border);background:transparent}
-.stTabs [data-baseweb="tab"]{background:transparent!important;color:var(--muted)!important;padding:.5rem .75rem}
-.stTabs [data-baseweb="tab"] p{color:inherit!important;font-weight:600!important;font-size:.88rem!important}
+/* Pestañas, expanders, contenedores */
+.stTabs [data-baseweb="tab-list"]{gap:1.4rem;border-bottom:1px solid var(--line);background:transparent}
+.stTabs [data-baseweb="tab"]{background:transparent!important;color:var(--muted)!important;padding:.6rem 0}
+.stTabs [data-baseweb="tab"] p{color:inherit!important;font-size:.75rem!important;letter-spacing:.14em;text-transform:uppercase;font-weight:500!important}
 .stTabs [aria-selected="true"]{color:var(--text)!important}
-.stTabs [data-baseweb="tab-highlight"]{background:var(--accent)!important;height:2px}
+.stTabs [data-baseweb="tab-highlight"]{background:var(--accent)!important;height:1px}
 .stTabs [data-baseweb="tab-border"]{display:none}
-[data-testid="stExpander"] details{background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:12px!important}
-[data-testid="stExpander"] summary,[data-testid="stExpander"] summary p,[data-testid="stExpander"] summary span{color:var(--text)!important;font-weight:600;font-size:.9rem}
-[data-testid="stVerticalBlockBorderWrapper"],[data-testid="stForm"]{border-color:var(--border)!important;border-radius:14px!important;background:var(--surface)}
-[data-testid="stMetric"]{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 16px}
-[data-testid="stMetricValue"]{color:var(--text)!important;font-family:var(--serif);font-size:1.9rem!important}
-[data-testid="stMetricLabel"] p{color:var(--muted)!important}
-[data-testid="stCode"] pre{background:var(--surface2)!important;border-radius:10px!important;border:1px solid var(--border)}
-[data-testid="stCode"] code{color:var(--text)!important;white-space:pre-wrap!important;word-break:break-all;font-size:.8rem!important}
-[data-testid="stAlert"]{border-radius:12px!important}
-hr{border-color:var(--border)!important;margin:1.2rem 0!important}
-.st-key-scrolltop{position:absolute!important;height:0!important;overflow:hidden;visibility:hidden;pointer-events:none}
+[data-testid="stExpander"] details{background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:2px!important}
+[data-testid="stExpander"] summary,[data-testid="stExpander"] summary p,[data-testid="stExpander"] summary span{color:var(--text)!important;font-size:.85rem;font-weight:500}
+[data-testid="stVerticalBlockBorderWrapper"],[data-testid="stForm"]{border-color:var(--line)!important;border-radius:2px!important;background:var(--surface)}
+[data-testid="stMetric"]{background:var(--surface);border:1px solid var(--line);border-radius:2px;padding:14px 18px}
+[data-testid="stMetricValue"]{color:var(--text)!important;font-family:var(--serif);font-size:2rem!important}
+[data-testid="stMetricLabel"] p{color:var(--muted)!important;letter-spacing:.12em;text-transform:uppercase;font-size:.7rem!important}
+[data-testid="stCode"] pre{background:var(--bg2)!important;border-radius:2px!important;border:1px solid var(--line)}
+[data-testid="stCode"] code{color:var(--text)!important;white-space:pre-wrap!important;word-break:break-all;font-size:.78rem!important}
+[data-testid="stAlert"]{border-radius:2px!important}
+hr{border-color:var(--line)!important;margin:1.2rem 0!important}
 
-/* Navbar */
-.st-key-navbar{position:sticky;top:.5rem;z-index:999;background:var(--nav);backdrop-filter:blur(16px) saturate(1.6);-webkit-backdrop-filter:blur(16px) saturate(1.6);border:1px solid var(--border);border-radius:14px;padding:.4rem .45rem .4rem .9rem;margin:.5rem 0 1.2rem;box-shadow:0 10px 30px -22px var(--shadow2)}
-.st-key-navbar [data-testid="stHorizontalBlock"]{flex-wrap:nowrap!important;gap:.4rem!important;align-items:center}
-.st-key-navbar [data-testid="stColumn"]{min-width:0!important}
-.st-key-navbar .stButton button{min-height:2.1rem;border-color:var(--border)!important}
-.ra-brand{display:flex;align-items:baseline;gap:.5rem;white-space:nowrap}
-.ra-brand b{font-family:var(--serif);font-weight:400;font-size:1.35rem;color:var(--text);letter-spacing:-.01em}
-.ra-brand b i{color:var(--accent)}
-.ra-brand span{font-size:.72rem;color:var(--muted);font-weight:600;letter-spacing:.08em}
+/* Barra superior */
+.ra-announce{margin:0 -100vw;padding:.45rem 100vw;background:var(--text);color:var(--bg);text-align:center;font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;font-weight:500}
+.ra-announce b{color:var(--accent2);font-weight:500}
+.st-key-hdr{position:sticky;top:0;z-index:999;background:var(--head);border-bottom:1px solid var(--line);margin:0!important;padding:.55rem 0}
+.st-key-hdr [data-testid="stHorizontalBlock"]{flex-wrap:nowrap!important;align-items:center;gap:.5rem!important}
+.st-key-hdr [data-testid="stColumn"]{min-width:0!important}
+.st-key-hdr .stButton button{border-color:transparent!important;min-height:2.1rem;padding:.2rem .6rem!important}
+.st-key-hdr .stButton button:hover{border-color:var(--line2)!important}
+.ra-logo{display:flex;align-items:center;justify-content:center;gap:.75rem;color:var(--accent)}
+.ra-logo-svg{width:46px;height:46px;flex-shrink:0}
+.ra-ring{stroke-dasharray:352;stroke-dashoffset:352;animation:draw 2.4s var(--slow) .2s forwards}
+.ra-word{display:flex;flex-direction:column;line-height:1}
+.ra-word b{font-family:var(--serif);font-weight:500;font-size:1.32rem;letter-spacing:.24em;color:var(--text)}
+.ra-word span{font-size:.58rem;letter-spacing:.58em;color:var(--accent);margin-top:.3rem;font-weight:500}
+.ra-hdr-note{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
 
-/* Contacto */
-.ra-contact{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:.9rem 1rem;margin-bottom:2rem;position:relative;overflow:hidden;animation:fadeIn .8s var(--ease) both}
-.ra-contact::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 120px at 0% 0%,var(--accent-soft),transparent 70%);pointer-events:none}
-.ra-ph{position:relative;width:58px;height:58px;flex-shrink:0;border-radius:50%;padding:2px;background:conic-gradient(from var(--a,0deg),var(--accent),transparent 40%,var(--accent) 75%,transparent);animation:spin 7s linear infinite}
-.ra-ph img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid var(--surface);display:block}
-@property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
-.ra-who{position:relative;flex:1;min-width:170px}
-.ra-who .n{font-family:var(--serif);font-size:1.45rem;line-height:1.05;color:var(--text)}
-.ra-who .t{font-size:.84rem;color:var(--muted);margin-top:.15rem}
-.ra-links{position:relative;display:flex;gap:.45rem}
-.ra-lk{--c:var(--text);display:inline-flex;align-items:center;gap:.45rem;padding:.48rem .8rem;border-radius:10px;border:1px solid var(--border2);background:var(--surface);color:var(--text)!important;text-decoration:none!important;font-size:.84rem;font-weight:600;transition:all .4s var(--ease)!important;white-space:nowrap}
-.ra-lk svg{width:16px;height:16px;flex-shrink:0;transition:transform .5s var(--ease)}
-.ra-lk:hover{border-color:var(--c);color:var(--c)!important;transform:translateY(-2px);box-shadow:0 10px 22px -14px var(--c)}
-.ra-lk:hover svg{transform:rotate(-10deg) scale(1.12)}
-.ra-lk.wa{--c:#1EA952}.ra-lk.ig{--c:#D62976}.ra-lk.ml{--c:var(--accent)}
+/* Switch de tema */
+.st-key-theme_sw button{position:relative;width:54px!important;min-width:54px!important;height:28px!important;min-height:28px!important;padding:0!important;border-radius:999px!important;background:var(--sw-track)!important;border:1px solid var(--line2)!important;overflow:hidden}
+.st-key-theme_sw button p,.st-key-theme_sw button span{font-size:0!important;opacity:0}
+.st-key-theme_sw button::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--sw-icon) center/12px no-repeat,var(--sw-knob);box-shadow:0 2px 6px rgba(0,0,0,.22);transform:translateX(var(--sw-x));transition:transform .55s var(--slow)}
+.st-key-theme_sw button:hover{border-color:var(--accent)!important}
+.st-key-theme_sw{display:flex;justify-content:flex-end}
 
-/* Encabezados de sección */
-.ra-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin:.2rem 0 .1rem}
-.ra-head .t{font-family:var(--serif);font-size:2rem;line-height:1;color:var(--text)}
-.ra-head .t i{color:var(--accent)}
-.ra-head .c{font-size:.8rem;color:var(--muted);font-weight:600}
-.ra-sub{color:var(--muted);font-size:.86rem;margin:.25rem 0 .2rem}
+/* Cortina del cambio de tema */
+.ra-curtain{position:fixed;inset:0;z-index:99998;pointer-events:none;animation:curtain .95s var(--slow) forwards}
+.ra-curtain-line{position:fixed;left:0;right:0;top:0;height:1px;z-index:99999;pointer-events:none;box-shadow:0 0 18px 2px var(--accent);animation:sweep .95s var(--slow) forwards}
 
-/* Tarjetas de producto */
-[class*="st-key-card_"]{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:8px 8px 12px;gap:.4rem!important;cursor:pointer;transition:transform .55s var(--ease),box-shadow .55s var(--ease),border-color .4s!important;animation:rise .8s var(--ease) both}
-@supports (animation-timeline:view()){[class*="st-key-card_"]{animation:rise linear both;animation-timeline:view();animation-range:entry 0% cover 22%}}
-[class*="st-key-card_"]:hover{transform:translateY(-4px);box-shadow:0 22px 40px -26px var(--shadow2);border-color:var(--border2)}
-[class*="st-key-card_"]:hover .ra-img img{transform:scale(1.045)}
-[class*="st-key-card_"]:hover .ra-hint{opacity:1;transform:none}
-[class*="st-key-card_"]:has(button:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+/* Presentación */
+.ra-intro{display:grid;grid-template-columns:1.05fr 1fr;gap:2.5rem;align-items:center;padding:2.4rem 0 2.2rem;border-bottom:1px solid var(--line);animation:fade .9s var(--ease) both}
+.ra-owner{display:flex;gap:1.3rem;align-items:flex-start}
+.ra-sq{position:relative;flex-shrink:0;width:136px;height:136px}
+.ra-sq::before{content:"";position:absolute;inset:8px -8px -8px 8px;border:1px solid var(--accent);opacity:.55}
+.ra-sq img{position:relative;width:100%;height:100%;object-fit:cover;display:block;border-radius:2px}
+.ra-owner-body{flex:1;min-width:0}
+.ra-intro>*{min-width:0}
+.ra-kicker{font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);font-weight:500}
+.ra-owner-name{font-family:var(--serif);font-size:2.1rem;line-height:1;color:var(--text);margin:.3rem 0 .2rem;font-weight:500}
+.ra-owner-tag{font-size:.86rem;color:var(--muted);font-weight:300;margin-bottom:.9rem}
+.ra-stack{display:flex;flex-direction:column;gap:.4rem;max-width:330px}
+.ra-ct{display:flex;align-items:center;gap:.7rem;padding:.5rem .75rem;border:1px solid var(--line2);background:var(--surface);color:var(--text)!important;text-decoration:none!important;transition:border-color .35s var(--ease),transform .35s var(--ease)}
+.ra-ct .ic{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:var(--chip);color:var(--accent);flex-shrink:0;transition:background-color .35s var(--ease),color .35s var(--ease)}
+.ra-ct .ic svg{width:15px;height:15px}
+.ra-ct .tx{flex:1;min-width:0;line-height:1.2}
+.ra-ct .tx b{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;font-weight:500;color:var(--muted)}
+.ra-ct .tx span{display:block;font-size:.86rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ra-ct .go{width:14px;height:14px;color:var(--faint);transition:transform .35s var(--ease),color .35s var(--ease)}
+.ra-ct:hover{border-color:var(--accent);transform:translateX(3px)}
+.ra-ct:hover .ic{background:var(--accent);color:var(--accent-ink)}
+.ra-ct:hover .go{transform:translateX(3px);color:var(--accent)}
+.ra-manifest h2{font-family:var(--serif)!important;font-size:clamp(1.9rem,3.4vw,2.6rem)!important;line-height:1.08!important;font-weight:400!important;color:var(--text)!important;margin:0 0 .7rem!important;padding:0!important}
+.ra-manifest h2 em{color:var(--accent)}
+.ra-manifest p{color:var(--muted)!important;font-weight:300;line-height:1.7;max-width:46ch;margin-bottom:1.1rem}
+.ra-promises{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.ra-promises div{padding:.9rem .6rem .2rem 0;font-size:.8rem;color:var(--text);line-height:1.35}
+.ra-promises svg{width:18px;height:18px;color:var(--accent);display:block;margin-bottom:.4rem}
+.ra-promises small{display:block;color:var(--muted);font-size:.72rem;margin-top:.15rem}
+
+/* Encabezados */
+.ra-sec{text-align:center;margin:2.6rem 0 .6rem}
+.ra-sec .k{font-size:.66rem;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);font-weight:500}
+.ra-sec .t{font-family:var(--serif);font-size:2.3rem;font-weight:400;color:var(--text);line-height:1.1;margin-top:.25rem}
+.ra-sec .s{color:var(--muted);font-size:.84rem;font-weight:300;margin-top:.3rem}
+.ra-orn{display:flex;align-items:center;justify-content:center;gap:.6rem;color:var(--accent);margin:.6rem 0 0}
+.ra-orn::before,.ra-orn::after{content:"";width:46px;height:1px;background:currentColor;opacity:.5}
+.ra-orn i{width:6px;height:6px;transform:rotate(45deg);border:1px solid currentColor}
+.ra-left{text-align:left;margin:.4rem 0}
+.ra-count{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:right;padding-top:.4rem}
+
+/* Tarjetas */
+[class*="st-key-card_"]{position:relative;gap:.55rem!important;animation:fade .7s var(--ease) both}
 [class*="st-key-view_"]{position:absolute!important;inset:0;z-index:2;margin:0!important}
 [class*="st-key-view_"] div,[class*="st-key-view_"] button{width:100%!important;height:100%!important}
 [class*="st-key-view_"] button{opacity:0!important;cursor:pointer}
-.ra-img{position:relative;aspect-ratio:4/5;border-radius:11px;overflow:hidden;background:var(--surface2)}
-.ra-img.big{border-radius:16px}
-.ra-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1s var(--ease),filter .6s!important}
-.ra-img img.r{animation:inR .55s var(--ease)}
-.ra-img img.l{animation:inL .55s var(--ease)}
-.ra-img.sold img{filter:grayscale(1) contrast(.9) brightness(.92)}
-.ra-tl{position:absolute;top:8px;left:8px;display:flex;gap:4px}
-.ra-badge{background:rgba(255,255,255,.88);color:#11141C;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:.68rem;font-weight:700;padding:4px 8px;border-radius:999px;display:inline-flex;align-items:center;gap:5px}
-.ra-badge.ok::before{content:"";width:6px;height:6px;border-radius:50%;background:#1F9D61;animation:pulse 2.4s infinite}
-.ra-badge.out{background:#11141C;color:#fff}
-.ra-hint{position:absolute;right:8px;top:8px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.9);color:#11141C;display:grid;place-items:center;opacity:0;transform:translate(-4px,4px);transition:all .45s var(--ease)!important}
-.ra-hint svg{width:14px;height:14px}
-.ra-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:4px}
-.ra-dots i{width:5px;height:5px;border-radius:9px;background:rgba(255,255,255,.55);transition:all .45s var(--ease)!important}
-.ra-dots i.on{width:16px;background:#fff}
-.ra-info{padding:0 4px}
-.ra-cat{font-size:.72rem;color:var(--muted);font-weight:600}
-.ra-name{font-weight:600;font-size:.95rem;line-height:1.25;color:var(--text);margin:.1rem 0 .35rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ra-chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:.45rem}
-.chip{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;padding:3px 8px;border-radius:6px;background:var(--chip);color:var(--muted);font-weight:600;white-space:nowrap}
-.chip svg{width:11px;height:11px}
-.chip.size{background:var(--text);color:var(--bg)}
-.ra-price{font-weight:700;font-size:1rem;color:var(--text)}
+[class*="st-key-card_"]:has(button:focus-visible){outline:1.5px solid var(--accent);outline-offset:4px}
+.ra-img{position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--bg2);border-radius:2px}
+.ra-img img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.001);transition:transform 1.4s var(--ease)}
+.ra-img img.r{animation:inR .5s var(--ease)}
+.ra-img img.l{animation:inL .5s var(--ease)}
+[class*="st-key-card_"]:hover .ra-img img{transform:scale(1.045)}
+.ra-img.sold img{filter:grayscale(1);opacity:.75}
+.ra-badge{position:absolute;top:10px;left:10px;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;font-weight:500;padding:4px 8px;background:var(--surface);color:var(--text)}
+.ra-badge.out{background:var(--text);color:var(--bg)}
+.ra-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px}
+.ra-dots i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.55);transition:transform .4s var(--ease),background-color .4s}
+.ra-dots i.on{background:#fff;transform:scale(1.35)}
+.ra-quick{position:absolute;left:10px;right:10px;bottom:10px;padding:.55rem;text-align:center;background:var(--surface);color:var(--text);font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;font-weight:500;opacity:0;transform:translateY(8px);transition:opacity .45s var(--ease),transform .45s var(--ease)}
+[class*="st-key-card_"]:hover .ra-quick{opacity:1;transform:none}
+[class*="st-key-card_"]:hover .ra-dots{opacity:0}
+.ra-info{text-align:center;padding:0 .3rem}
+.ra-brand{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.ra-name{font-family:var(--serif);font-size:1.22rem;font-weight:500;color:var(--text);line-height:1.15;margin:.15rem 0 .35rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ra-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-bottom:.4rem}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:.66rem;padding:2px 7px;border:1px solid var(--line2);color:var(--muted);letter-spacing:.04em;white-space:nowrap}
+.chip svg{width:10px;height:10px}
+.chip.size{border-color:var(--accent);color:var(--accent);font-weight:500}
+.ra-price{font-size:.92rem;letter-spacing:.06em;color:var(--text);font-weight:500}
 
-/* Flechas del carrusel sobre la foto */
-[class*="st-key-arw_"],[class*="st-key-garw_"]{position:relative;z-index:3;margin-top:-3.1rem!important;padding:0 .55rem;pointer-events:none}
+/* Flechas del carrusel */
+[class*="st-key-arw_"],[class*="st-key-garw_"]{position:relative;z-index:3;margin-top:-3.25rem!important;padding:0 .6rem;pointer-events:none}
 [class*="st-key-garw_"]{margin-top:-3.9rem!important;padding:0 .9rem}
 :is([class*="st-key-arw_"],[class*="st-key-garw_"]) [data-testid="stHorizontalBlock"]{flex-wrap:nowrap!important;justify-content:space-between!important}
 :is([class*="st-key-arw_"],[class*="st-key-garw_"]) [data-testid="stColumn"]{width:auto!important;flex:0 0 auto!important;min-width:0!important}
-:is([class*="st-key-arw_"],[class*="st-key-garw_"]) button{pointer-events:auto;width:30px!important;height:30px!important;min-height:30px!important;padding:0!important;border-radius:50%!important;background:rgba(255,255,255,.9)!important;color:#11141C!important;border:none!important;box-shadow:0 6px 16px -8px rgba(0,0,0,.35)!important;opacity:0;transform:scale(.85)}
-:is([class*="st-key-arw_"],[class*="st-key-garw_"]) button p,:is([class*="st-key-arw_"],[class*="st-key-garw_"]) button span{color:#11141C!important}
-[class*="st-key-garw_"] button{width:40px!important;height:40px!important;min-height:40px!important;opacity:1;transform:none}
-[class*="st-key-card_"]:hover [class*="st-key-arw_"] button{opacity:1;transform:none}
-:is([class*="st-key-arw_"],[class*="st-key-garw_"]) button:hover{background:#fff!important;transform:scale(1.1)!important}
-@media (hover:none){[class*="st-key-arw_"] button{opacity:1;transform:none}}
+:is([class*="st-key-arw_"],[class*="st-key-garw_"]) button{pointer-events:auto;width:30px!important;height:30px!important;min-height:30px!important;padding:0!important;border-radius:50%!important;background:rgba(255,253,248,.92)!important;color:#1C1813!important;border:none!important;opacity:0;transform:scale(.85)}
+:is([class*="st-key-arw_"],[class*="st-key-garw_"]) button p,:is([class*="st-key-arw_"],[class*="st-key-garw_"]) button span{color:#1C1813!important}
+[class*="st-key-card_"]:hover [class*="st-key-arw_"] button,[class*="st-key-garw_"] button{opacity:1;transform:none}
+[class*="st-key-garw_"] button{width:40px!important;height:40px!important;min-height:40px!important}
+:is([class*="st-key-arw_"],[class*="st-key-garw_"]) button:hover{background:#fff!important;transform:scale(1.08)!important}
+[class*="st-key-card_"]:hover [class*="st-key-arw_"]{margin-top:-5.6rem!important}
+@media (hover:none){[class*="st-key-arw_"] button{opacity:1;transform:none}.ra-quick{display:none}}
 
-/* Detalle */
+/* Ficha de producto */
+.ra-crumb{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:1.2rem 0 .2rem}
+.ra-crumb b{color:var(--text);font-weight:500}
 .ra-thumbs{display:flex;gap:6px;margin-top:.6rem;overflow-x:auto}
-.ra-thumbs img{width:52px;height:64px;object-fit:cover;border-radius:8px;opacity:.4;border:1.5px solid transparent;flex-shrink:0;transition:all .4s var(--ease)!important}
-.ra-thumbs img.on{opacity:1;border-color:var(--text)}
-.ra-d{animation:rise .7s .05s var(--ease) both}
-.ra-d-cat{font-size:.8rem;color:var(--accent);font-weight:700}
-.ra-d-name{font-family:var(--serif);font-size:clamp(2rem,3.6vw,2.7rem);line-height:1.02;color:var(--text);margin:.25rem 0 .6rem;letter-spacing:-.01em}
-.ra-d-price{display:flex;align-items:center;gap:.7rem;margin-bottom:.8rem}
-.ra-d-price b{font-size:1.45rem;font-weight:700;color:var(--text)}
-.ra-pill{font-size:.74rem;font-weight:700;padding:4px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:6px}
-.ra-pill.ok{background:color-mix(in srgb,var(--ok) 13%,transparent);color:var(--ok)}
-.ra-pill.ok::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ok);animation:pulse 2.4s infinite}
-.ra-pill.out{background:var(--chip);color:var(--muted)}
-.ra-d-short{color:var(--muted);font-size:.92rem;line-height:1.6;margin:.5rem 0 1.1rem;max-width:52ch}
-.ra-cta{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.8rem 1rem;border-radius:11px;background:var(--text);color:var(--bg)!important;font-weight:600;font-size:.92rem;text-decoration:none!important;transition:all .45s var(--ease)!important}
-.ra-cta svg{width:17px;height:17px}
-.ra-cta::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.28) 50%,transparent 65%);transform:translateX(-120%);transition:transform .9s var(--ease)}
-.ra-cta:hover{background:var(--accent);color:var(--accent-ink)!important;transform:translateY(-2px);box-shadow:0 14px 28px -14px var(--glow)}
-.ra-cta:hover::after{transform:translateX(120%)}
+.ra-thumbs img{width:54px;height:68px;object-fit:cover;opacity:.45;border:1px solid transparent;flex-shrink:0;transition:opacity .35s var(--ease)}
+.ra-thumbs img.on{opacity:1;border-color:var(--accent)}
+.ra-d{animation:fade .7s var(--ease) both}
+.ra-d-brand{font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);font-weight:500}
+.ra-d-name{font-family:var(--serif);font-size:clamp(2.1rem,3.8vw,2.9rem);font-weight:400;line-height:1.03;color:var(--text);margin:.3rem 0 .7rem}
+.ra-d-price{display:flex;align-items:center;gap:.9rem;margin-bottom:.9rem}
+.ra-d-price b{font-size:1.35rem;letter-spacing:.04em;font-weight:500;color:var(--text)}
+.ra-pill{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;font-weight:500;padding:4px 9px;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);color:var(--muted)}
+.ra-pill.ok{color:var(--ok);border-color:currentColor}
+.ra-pill.ok::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.ra-d .ra-chips{justify-content:flex-start}
+.ra-d-short{color:var(--muted);font-size:.95rem;font-weight:300;line-height:1.7;margin:.6rem 0 1.2rem;max-width:50ch}
+.ra-cta{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;padding:.95rem 1rem;background:var(--text);color:var(--bg)!important;font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;font-weight:500;text-decoration:none!important;transition:background-color .4s var(--ease)}
+.ra-cta svg{width:16px;height:16px}
+.ra-cta::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.22) 50%,transparent 60%);transform:translateX(-110%);transition:transform 1.1s var(--ease)}
+.ra-cta:hover{background:var(--accent);color:var(--accent-ink)!important}
+.ra-cta:hover::after{transform:translateX(110%)}
 .ra-cta-row{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin-top:.45rem}
-.ra-cta.ghost{background:transparent;color:var(--text)!important;border:1px solid var(--border2);font-size:.85rem;padding:.62rem .8rem}
-.ra-cta.ghost:hover{background:transparent;border-color:var(--text);color:var(--text)!important;box-shadow:none}
-.ra-specs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:1.2rem 0}
-.ra-specs div{background:var(--surface);padding:.65rem .8rem}
-.ra-specs small{display:flex;align-items:center;gap:4px;color:var(--muted);font-size:.7rem;font-weight:600;margin-bottom:2px}
-.ra-specs small svg{width:11px;height:11px}
-.ra-specs span{color:var(--text);font-weight:600;font-size:.86rem}
-.ra-desc h4{font-family:var(--sans)!important;font-size:.8rem!important;font-weight:700!important;color:var(--muted)!important;margin:.4rem 0 .35rem!important;padding:0!important}
-.ra-desc p{color:var(--text)!important;opacity:.85;line-height:1.7;font-size:.92rem;max-width:62ch}
-.ra-desc ul{list-style:none;padding:0;margin:.2rem 0 0}
-.ra-desc li{padding:.4rem 0;border-bottom:1px solid var(--border);color:var(--text)!important;font-size:.88rem;display:flex;gap:.6rem}
-.ra-desc li::before{content:"";width:5px;height:5px;margin-top:.5rem;border-radius:50%;background:var(--accent);flex-shrink:0}
+.ra-cta.ghost{background:transparent;color:var(--text)!important;border:1px solid var(--line2);padding:.75rem .8rem}
+.ra-cta.ghost:hover{border-color:var(--accent);color:var(--accent)!important;background:transparent}
+.ra-specs{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line);margin:1.4rem 0}
+.ra-specs div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:.7rem .8rem}
+.ra-specs small{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;margin-bottom:3px}
+.ra-specs small svg{width:11px;height:11px;color:var(--accent)}
+.ra-specs span{color:var(--text);font-size:.88rem}
+.ra-desc h4{font-family:var(--sans)!important;font-size:.66rem!important;letter-spacing:.22em;text-transform:uppercase;font-weight:500!important;color:var(--accent)!important;margin:.6rem 0 .4rem!important;padding:0!important}
+.ra-desc p{color:var(--text)!important;font-weight:300;line-height:1.8;font-size:.93rem;max-width:62ch}
+.ra-desc ul{list-style:none;padding:0;margin:0}
+.ra-desc li{padding:.45rem 0;border-bottom:1px solid var(--line);font-size:.88rem;display:flex;gap:.7rem}
+.ra-desc li::before{content:"";width:5px;height:5px;margin-top:.55rem;transform:rotate(45deg);border:1px solid var(--accent);flex-shrink:0}
 
-/* Perfiles, listas y tablas */
-.ra-prof{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1rem 1.1rem;margin-bottom:1rem;animation:rise .6s var(--ease) both}
-.ra-prof>img{width:64px;height:64px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 3px var(--surface),0 0 0 4px var(--border2)}
-.ra-prof .n{font-family:var(--serif);font-size:1.6rem;line-height:1.05;color:var(--text)}
-.ra-prof .d{color:var(--muted);font-size:.8rem;margin-top:.3rem;display:flex;gap:.8rem;flex-wrap:wrap}
-.ra-prof .d span{display:inline-flex;align-items:center;gap:4px}
-.ra-prof .d svg{width:13px;height:13px}
-.ra-prof .k{display:flex;gap:1.4rem;margin-left:auto}
+/* Cómo comprar */
+.ra-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:1rem}
+.ra-step{padding:1.4rem 1.2rem;border-right:1px solid var(--line)}
+.ra-step:last-child{border-right:none}
+.ra-step .n{font-family:var(--serif);font-size:2.2rem;color:var(--accent);line-height:1;font-style:italic}
+.ra-step b{display:block;font-weight:500;font-size:.95rem;color:var(--text);margin:.4rem 0 .2rem}
+.ra-step span{font-size:.84rem;color:var(--muted);font-weight:300;line-height:1.55}
+
+/* Perfiles, listas, tablas */
+.ra-prof{display:flex;gap:1.1rem;align-items:center;flex-wrap:wrap;border:1px solid var(--line);background:var(--surface);padding:1.1rem 1.2rem;margin:1rem 0;animation:fade .6s var(--ease) both}
+.ra-prof>img{width:68px;height:68px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 3px var(--surface),0 0 0 4px var(--accent)}
+.ra-prof .n{font-family:var(--serif);font-size:1.75rem;line-height:1.05;color:var(--text)}
+.ra-prof .d{color:var(--muted);font-size:.8rem;margin-top:.3rem;display:flex;gap:.9rem;flex-wrap:wrap}
+.ra-prof .d span{display:inline-flex;align-items:center;gap:5px}
+.ra-prof .d svg{width:13px;height:13px;color:var(--accent)}
+.ra-prof .k{display:flex;gap:1.6rem;margin-left:auto}
 .ra-prof .k div{text-align:right}
-.ra-prof .k b{display:block;font-family:var(--serif);font-size:1.4rem;color:var(--text);font-weight:400}
-.ra-prof .k small{color:var(--muted);font-size:.74rem}
-.ra-row{display:flex;align-items:center;gap:.75rem;padding:.55rem;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
-.ra-row img{width:42px;height:50px;object-fit:cover;border-radius:8px;flex-shrink:0}
+.ra-prof .k b{display:block;font-family:var(--serif);font-size:1.5rem;color:var(--text);font-weight:500}
+.ra-prof .k small{color:var(--muted);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase}
+.ra-row{display:flex;align-items:center;gap:.8rem;padding:.55rem;border:1px solid var(--line);background:var(--surface)}
+.ra-row img{width:42px;height:52px;object-fit:cover;flex-shrink:0}
 .ra-row .m{flex:1;min-width:0}
-.ra-row .m b{display:block;color:var(--text);font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ra-row .m b{display:block;color:var(--text);font-weight:500;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ra-row .m small{color:var(--muted);font-size:.76rem}
-.ra-row .v{font-weight:700;color:var(--text);font-size:.9rem;white-space:nowrap}
+.ra-row .v{font-weight:500;color:var(--text);font-size:.9rem;white-space:nowrap}
 .ra-row.flat{border:none;padding:0;background:none}
-.ra-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+.ra-table-wrap{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
 .ra-table{width:100%;border-collapse:collapse;font-size:.84rem}
-.ra-table th{text-align:left;color:var(--muted);font-weight:600;font-size:.74rem;padding:.6rem .8rem;border-bottom:1px solid var(--border);white-space:nowrap}
-.ra-table td{padding:.55rem .8rem;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap}
+.ra-table th{text-align:left;color:var(--muted);font-weight:500;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;padding:.7rem .8rem;border-bottom:1px solid var(--line);white-space:nowrap}
+.ra-table td{padding:.55rem .8rem;border-bottom:1px solid var(--line);color:var(--text);white-space:nowrap}
 .ra-table tr:last-child td{border-bottom:none}
 .ra-table tbody tr:hover td{background:var(--chip)}
 .ra-table img{width:24px;height:24px;border-radius:50%;vertical-align:middle;margin-right:6px;object-fit:cover}
-.ra-podium{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin:.4rem 0 1rem}
-.ra-pod{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:.9rem;display:flex;align-items:center;gap:.7rem;animation:rise .6s var(--ease) both}
-.ra-pod.first{border-color:var(--accent);box-shadow:0 12px 28px -20px var(--glow)}
+.ra-podium{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin:.6rem 0 1rem}
+.ra-pod{border:1px solid var(--line);background:var(--surface);padding:.9rem;display:flex;align-items:center;gap:.8rem}
+.ra-pod.first{border-color:var(--accent)}
 .ra-pod img{width:42px;height:42px;border-radius:50%;object-fit:cover}
-.ra-pod .p{font-family:var(--serif);font-size:1.6rem;color:var(--accent);width:1.2rem}
-.ra-pod b{display:block;color:var(--text);font-size:.9rem}
-.ra-pod small{color:var(--muted);font-size:.76rem}
-.st-key-authbox{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.4rem 1.4rem 1.2rem;animation:rise .6s var(--ease) both;box-shadow:0 30px 60px -45px var(--shadow2)}
-.ra-auth-h{font-family:var(--serif);font-size:2rem;color:var(--text);line-height:1;text-align:center}
-.ra-auth-s{color:var(--muted);text-align:center;font-size:.86rem;margin:.35rem 0 .6rem}
+.ra-pod .p{font-family:var(--serif);font-style:italic;font-size:1.8rem;color:var(--accent);width:1.2rem}
+.ra-pod b{display:block;color:var(--text);font-size:.9rem;font-weight:500}
+.ra-pod small{color:var(--muted);font-size:.74rem}
+.st-key-authbox{border:1px solid var(--line);background:var(--surface);padding:1.6rem 1.5rem 1.3rem;margin-top:2rem;animation:fade .6s var(--ease) both}
+.ra-auth{text-align:center;color:var(--accent)}
+.ra-auth .ra-logo-svg{width:54px;height:54px}
+.ra-auth h3{font-family:var(--serif)!important;font-size:2rem!important;font-weight:400!important;color:var(--text)!important;margin:.3rem 0 .1rem!important;padding:0!important}
+.ra-auth p{color:var(--muted)!important;font-size:.85rem;font-weight:300}
 .ra-avprev{display:flex;align-items:center;gap:.6rem;margin:-.2rem 0 .3rem}
-.ra-avprev img{width:40px;height:40px;border-radius:50%;box-shadow:0 0 0 1px var(--border2)}
+.ra-avprev img{width:40px;height:40px;border-radius:50%;box-shadow:0 0 0 1px var(--line2)}
 .ra-avprev span{color:var(--muted);font-size:.8rem}
-.ra-empty{text-align:center;padding:2.6rem 1rem;color:var(--muted);border:1px dashed var(--border2);border-radius:16px;font-size:.88rem}
-.ra-empty b{display:block;font-family:var(--serif);font-size:1.4rem;color:var(--text);font-weight:400;margin-bottom:.2rem}
-.ra-owner{display:flex;align-items:center;gap:.8rem}
-.ra-owner img{width:56px;height:56px;border-radius:50%;object-fit:cover}
+.ra-empty{text-align:center;padding:2.6rem 1rem;color:var(--muted);border:1px dashed var(--line2);font-size:.88rem;font-weight:300}
+.ra-empty b{display:block;font-family:var(--serif);font-size:1.5rem;color:var(--text);font-weight:400;margin-bottom:.2rem}
+.ra-ownerset{display:flex;align-items:center;gap:.9rem}
+.ra-ownerset img{width:60px;height:60px;object-fit:cover}
+.ra-note{color:var(--muted);font-size:.84rem;font-weight:300}
 
-/* Footer */
-.ra-foot{margin-top:3rem;padding:1.2rem 0 .4rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;color:var(--muted);font-size:.8rem}
-.ra-foot .b{font-family:var(--serif);font-size:1.1rem;color:var(--text)}
-.ra-foot nav{display:flex;gap:.4rem}
-.ra-foot a{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--border2);color:var(--text)!important;transition:all .35s var(--ease)!important}
-.ra-foot a svg{width:15px;height:15px}
-.ra-foot a:hover{background:var(--text);color:var(--bg)!important;transform:translateY(-2px)}
+/* Botón flotante de WhatsApp */
+.ra-float{position:fixed;right:22px;bottom:22px;z-index:998;display:flex;align-items:center;gap:0;height:50px;padding:0 15px;border-radius:999px;background:var(--text);color:var(--bg)!important;text-decoration:none!important;box-shadow:0 12px 30px -12px var(--shadow);transition:gap .45s var(--ease),background-color .35s var(--ease);animation:fade 1s var(--ease) 1s both}
+.ra-float svg{width:20px;height:20px;flex-shrink:0}
+.ra-float span{max-width:0;overflow:hidden;white-space:nowrap;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;font-weight:500;transition:max-width .45s var(--ease)}
+.ra-float:hover{gap:.6rem;background:var(--accent);color:var(--accent-ink)!important}
+.ra-float:hover span{max-width:160px}
 
-/* Transición del cambio de tema: revelado circular */
-.ra-wipe{position:fixed;inset:0;z-index:99999;pointer-events:none;clip-path:circle(145% at calc(100% - 7.5rem) 2.6rem);animation:wipe .9s cubic-bezier(.65,0,.35,1) forwards}
-@keyframes wipe{0%{clip-path:circle(145% at calc(100% - 7.5rem) 2.6rem);opacity:1}92%{opacity:1}100%{clip-path:circle(0% at calc(100% - 7.5rem) 2.6rem);opacity:0}}
+/* Pie de página */
+.ra-foot{margin:3.5rem -100vw 0;padding:2.6rem 100vw 1.2rem;background:var(--bg2);border-top:1px solid var(--line)}
+.ra-foot-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:2rem;max-width:1160px;margin:0 auto}
+.ra-foot .ra-logo{justify-content:flex-start}
+.ra-foot p{color:var(--muted)!important;font-size:.84rem;font-weight:300;margin-top:.8rem;max-width:34ch}
+.ra-foot h5{font-family:var(--sans)!important;font-size:.64rem!important;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)!important;font-weight:500!important;margin:0 0 .7rem!important;padding:0!important}
+.ra-foot a.l{display:flex;align-items:center;gap:.5rem;color:var(--text)!important;text-decoration:none!important;font-size:.86rem;padding:.25rem 0;transition:color .3s var(--ease)}
+.ra-foot a.l svg{width:14px;height:14px;color:var(--accent)}
+.ra-foot a.l:hover{color:var(--accent)!important}
+.ra-foot .li{font-size:.86rem;color:var(--text);padding:.25rem 0;font-weight:300}
+.ra-copy{max-width:1160px;margin:2rem auto 0;padding-top:1rem;border-top:1px solid var(--line);text-align:center;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 
-@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
-@keyframes inR{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
-@keyframes inL{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
-@keyframes spin{to{--a:360deg}}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(31,157,97,.45)}60%{box-shadow:0 0 0 6px rgba(31,157,97,0)}}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes inR{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+@keyframes inL{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:none}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes curtain{0%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(100% 0 0 0)}}
+@keyframes sweep{0%{transform:translateY(0);opacity:1}92%{opacity:1}100%{transform:translateY(100vh);opacity:0}}
 
-/* Móvil */
-@media (max-width:640px){
+/* Celular */
+@media (max-width:760px){
  html{font-size:14px}
- .block-container,[data-testid="stMainBlockContainer"]{padding:.3rem .7rem 2rem!important}
- .ra-brand span{display:none}
- .st-key-navbar [data-testid="stColumn"]:first-child{flex:1 1 auto!important;width:auto!important}
- .st-key-navbar [data-testid="stColumn"]:not(:first-child){flex:0 0 auto!important;width:auto!important}
- .ra-contact{gap:.75rem}
- .ra-links{width:100%}
- .ra-lk{flex:1;justify-content:center;padding:.5rem .4rem;font-size:.78rem}
- [class*="st-key-grid_"] [data-testid="stHorizontalBlock"]{flex-wrap:wrap!important;gap:.6rem!important}
+ .block-container,[data-testid="stMainBlockContainer"]{padding:0 .8rem 1.5rem!important}
+ .st-key-hdr [data-testid="stColumn"]:nth-child(2){flex:1 1 auto!important;width:auto!important}
+ .st-key-hdr [data-testid="stColumn"]:not(:nth-child(2)){flex:0 0 auto!important;width:auto!important}
+ .ra-hdr-note{display:none}
+ .ra-logo-svg{width:38px;height:38px}
+ .ra-word b{font-size:.92rem;letter-spacing:.12em;white-space:nowrap}
+ .ra-word span{letter-spacing:.42em}
+ .ra-intro{grid-template-columns:1fr;gap:1.6rem;padding:1.6rem 0}
+ .ra-owner{display:grid;grid-template-columns:96px minmax(0,1fr);column-gap:1rem;align-items:start}
+ .ra-owner-body{display:contents}
+ .ra-sq{width:96px;height:96px;grid-row:1/4;grid-column:1}
+ .ra-kicker,.ra-owner-name,.ra-owner-tag{grid-column:2}
+ .ra-owner-name{font-size:1.6rem}
+ .ra-owner-tag{margin-bottom:0}
+ .ra-stack{grid-column:1/-1;max-width:none;margin-top:1.1rem;min-width:0}
+ .ra-manifest h2{font-size:1.7rem!important}
+ .ra-promises{grid-template-columns:1fr 1fr 1fr}
+ [class*="st-key-grid_"]{gap:1.4rem!important}
+ [class*="st-key-grid_"] [data-testid="stHorizontalBlock"]{flex-wrap:wrap!important;gap:1.4rem .6rem!important}
  [class*="st-key-grid_"] [data-testid="stColumn"]{flex:1 1 calc(50% - .3rem)!important;min-width:calc(50% - .3rem)!important;width:calc(50% - .3rem)!important}
  .ra-specs{grid-template-columns:1fr 1fr}
- .ra-cta-row{grid-template-columns:1fr 1fr}
+ .ra-steps{grid-template-columns:1fr}
+ .ra-step{border-right:none;border-bottom:1px solid var(--line)}
+ .ra-step:last-child{border-bottom:none}
  .ra-prof .k{margin-left:0}
  .ra-podium{grid-template-columns:1fr}
+ .ra-foot-grid{grid-template-columns:1fr;gap:1.4rem}
+ .ra-float{right:14px;bottom:14px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 """
@@ -724,14 +824,16 @@ def inject_css():
     v = THEMES[ss.theme]
     root = ":root{" + "".join(f"--{k}:{val};" for k, val in v.items()) + "}"
     html(f"<style>{root}{CSS}</style>")
-    wipe = ss.pop("_wipe", None)
-    if wipe:  # capa con el color del tema anterior que se abre en círculo
-        html(f'<div class="ra-wipe" style="background:{THEMES[wipe]["bg"]}" data-n="{uuid.uuid4().hex[:6]}"></div>')
+    old = ss.pop("_curtain", None)
+    if old:  # cortina con el color del tema anterior que se levanta, con una línea de luz
+        n = uuid.uuid4().hex[:6]
+        html(f'<div class="ra-curtain" data-n="{n}" style="background:{THEMES[old]["bg"]}"></div>'
+             f'<div class="ra-curtain-line" data-n="{n}" style="background:{v["accent"]}"></div>')
 
 
-# ════════════════════════════════════════════════════════════════════════
-# 8. COMPONENTES
-# ════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════
+# 8 · COMPONENTES
+# ══════════════════════════════════════════════════════════════════════════
 def scroll_top():
     code = ("<script>(function(){const d=window.parent.document;"
             "['[data-testid=\"stMain\"]','section.main','[data-testid=\"stAppViewContainer\"]']"
@@ -745,62 +847,79 @@ def scroll_top():
             components.html(code, height=0)
 
 
-def _toggle_theme():
-    ss["_wipe"] = ss.theme
-    ss.theme = "dark" if ss.theme == "light" else "light"
+def logo_html() -> str:
+    return (f'<div class="ra-logo">{LOGO}<div class="ra-word"><b>RISSOS ANGHELL</b>'
+            '<span>STORE</span></div></div>')
 
 
-def render_navbar(db, view):
-    with st.container(key="navbar"):
-        c_brand, c_shop, c_theme, c_acc = st.columns([6, 1.1, .5, 1.25], vertical_alignment="center")
-        c_brand.markdown('<div class="ra-brand"><b>Rissos <i>Anghell</i></b><span>STORE</span></div>',
-                         unsafe_allow_html=True)
-        with c_shop:
-            if view != "home" and st.button("Tienda", key="nav_shop", icon=":material/storefront:",
-                                            use_container_width=True):
+def render_header(db, view):
+    html('<div class="ra-announce">Entregas coordinadas en <b>Santiago</b> · '
+         'Consultas por WhatsApp, Instagram o correo</div>')
+    with st.container(key="hdr"):
+        left, mid, right = st.columns([1, 1.6, 1], vertical_alignment="center")
+        with left:
+            if view == "home":
+                html(f'<div class="ra-hdr-note">{esc(OWNER["city"])}</div>')
+            elif st.button("Tienda", key="nav_shop", icon=":material/arrow_back:"):
                 go("home")
-        with c_theme:
-            st.button("", key="nav_theme", on_click=_toggle_theme, use_container_width=True,
-                      icon=":material/dark_mode:" if ss.theme == "light" else ":material/light_mode:",
+        mid.markdown(logo_html(), unsafe_allow_html=True)
+        with right:
+            r1, r2 = st.columns([1, 1.5], vertical_alignment="center", gap="small")
+            r1.button("Tema", key="theme_sw", on_click=_toggle_theme,
                       help="Tema oscuro" if ss.theme == "light" else "Tema claro")
-        with c_acc:
-            u = current_user(db)
-            if u:
-                if st.button(u["name"].split()[0], key="nav_acc", icon=":material/account_circle:",
-                             use_container_width=True):
-                    go("profile")
-            elif ss.role == "admin":
-                if st.button("Panel", key="nav_acc", icon=":material/admin_panel_settings:",
-                             use_container_width=True):
-                    go("admin")
-            elif st.button("Ingresar", key="nav_acc", icon=":material/person:", use_container_width=True):
-                go("login")
+            with r2:
+                u = current_user(db)
+                if u:
+                    if st.button(u["name"].split()[0], key="nav_acc", icon=":material/person:",
+                                 use_container_width=True):
+                        go("profile")
+                elif ss.role == "admin":
+                    if st.button("Panel", key="nav_acc", icon=":material/admin_panel_settings:",
+                                 use_container_width=True):
+                        go("admin")
+                elif st.button("Ingresar", key="nav_acc", icon=":material/person:", use_container_width=True):
+                    go("login")
 
 
-def render_contact():
+def contact_stack_html() -> str:
     mail = mailto("Contacto – Rissos Anghell Store", "Hola Benjamín,\n\n")
     wa = wa_link("Hola Benjamín, te escribo desde Rissos Anghell Store.")
-    html(
-        '<section class="ra-contact">'
-        f'<div class="ra-ph"><img src="{owner_photo()}" alt="{esc(OWNER["name"])}"/></div>'
-        f'<div class="ra-who"><div class="n">{esc(OWNER["name"])}</div><div class="t">{esc(OWNER["tagline"])}</div></div>'
-        '<div class="ra-links">'
-        f'<a class="ra-lk wa" href="{wa}" target="_blank" rel="noopener" title="{OWNER["whatsapp_display"]}">{ICON["whatsapp"]}<span>WhatsApp</span></a>'
-        f'<a class="ra-lk ig" href="{IG_LINK}" target="_blank" rel="noopener" title="@{OWNER["instagram"]}">{ICON["instagram"]}<span>Instagram</span></a>'
-        f'<a class="ra-lk ml" href="{mail}" title="{OWNER["email"]}">{ICON["mail"]}<span>Correo</span></a>'
-        '</div></section>')
+    rows = [("wa", wa, "whatsapp", "WhatsApp", OWNER["whatsapp_display"], True),
+            ("ig", IG_LINK, "instagram", "Instagram", "@" + OWNER["instagram"], True),
+            ("ml", mail, "mail", "Correo electrónico", OWNER["email"], False)]
+    return '<div class="ra-stack">' + "".join(
+        f'<a class="ra-ct" href="{href}"{" target=_blank rel=noopener" if blank else ""}>'
+        f'<span class="ic">{ICON[ic]}</span><span class="tx"><b>{lb}</b><span>{esc(val)}</span></span>'
+        f'<span class="go">{ICON["arrow"]}</span></a>'
+        for _, href, ic, lb, val, blank in rows) + "</div>"
 
 
-def card_image_html(p, idx: int, d: str, big: bool = False) -> str:
-    imgs = p.get("images") or ["demo:bag:0"]
-    sold = p["status"] != "Disponible"
-    badge = (f'<span class="ra-badge out">{esc(p["status"])}</span>' if sold
-             else '<span class="ra-badge ok">Disponible</span>')
-    dots = "".join(f'<i class="{"on" if i == idx else ""}"></i>' for i in range(len(imgs))) if len(imgs) > 1 else ""
-    hint = "" if big else f'<span class="ra-hint">{ICON["arrow"]}</span>'
-    return (f'<div class="ra-img{" big" if big else ""}{" sold" if sold else ""}">'
-            f'<img class="{d}" src="{img_src(imgs[idx], thumb=not big)}" alt="{esc(p["name"])}" loading="lazy"/>'
-            f'<div class="ra-tl">{badge}</div>{hint}<div class="ra-dots">{dots}</div></div>')
+def render_intro():
+    html('<section class="ra-intro">'
+         '<div class="ra-owner">'
+         f'<div class="ra-sq"><img src="{owner_photo()}" alt="{esc(OWNER["name"])}"/></div>'
+         '<div class="ra-owner-body"><div class="ra-kicker">Tienda de</div>'
+         f'<div class="ra-owner-name">{esc(OWNER["name"])}</div>'
+         f'<div class="ra-owner-tag">{esc(OWNER["tagline"])}</div>{contact_stack_html()}</div></div>'
+         '<div class="ra-manifest"><h2>Piezas elegidas con calma, <em>revisadas una por una.</em></h2>'
+         '<p>Perfumes, ropa y artículos de colección. Cada publicación muestra su talla, origen y estado '
+         'reales, para que sepas exactamente lo que recibes.</p>'
+         '<div class="ra-promises">'
+         f'<div>{ICON["check"]}Originales<small>Estado real en cada ficha</small></div>'
+         f'<div>{ICON["truck"]}Entrega coordinada<small>En Santiago</small></div>'
+         f'<div>{ICON["chat"]}Respuesta rápida<small>Por tu canal favorito</small></div>'
+         '</div></div></section>')
+
+
+def section(kicker: str, title: str, sub: str = "", left: bool = False):
+    html(f'<div class="ra-sec{" ra-left" if left else ""}">'
+         + (f'<div class="k">{kicker}</div>' if kicker else "")
+         + f'<div class="t">{title}</div>' + (f'<div class="s">{sub}</div>' if sub else "")
+         + ("" if left else '<div class="ra-orn"><i></i></div>') + "</div>")
+
+
+def empty(title: str, text: str):
+    html(f'<div class="ra-empty"><b>{esc(title)}</b>{esc(text)}</div>')
 
 
 def chips_html(p, with_brand=False) -> str:
@@ -809,9 +928,19 @@ def chips_html(p, with_brand=False) -> str:
         out += f'<span class="chip size">{esc(size_label(p))}</span>'
     if p.get("made_in"):
         out += f'<span class="chip">{ICON["globe"]}Made in {esc(p["made_in"])}</span>'
-    if with_brand and p.get("brand"):
-        out += f'<span class="chip">{ICON["tag"]}{esc(p["brand"])}</span>'
+    if with_brand and p.get("condition"):
+        out += f'<span class="chip">{esc(p["condition"])}</span>'
     return out
+
+
+def card_image_html(p, idx: int, d: str, big: bool = False) -> str:
+    imgs = p.get("images") or ["demo:bag:0"]
+    sold = p["status"] != "Disponible"
+    badge = f'<span class="ra-badge out">{esc(p["status"])}</span>' if sold else ""
+    dots = "".join(f'<i class="{"on" if i == idx else ""}"></i>' for i in range(len(imgs))) if len(imgs) > 1 else ""
+    quick = "" if big else '<div class="ra-quick">Ver detalle</div>'
+    return (f'<div class="ra-img{" sold" if sold else ""}"><img class="{d}" src="{img_src(imgs[idx], thumb=not big)}" '
+            f'alt="{esc(p["name"])}"/>{badge}<div class="ra-dots">{dots}</div>{quick}</div>')
 
 
 def _step(prefix: str, pid: str, n: int, delta: int):
@@ -820,15 +949,16 @@ def _step(prefix: str, pid: str, n: int, delta: int):
     ss[f"{prefix}dir_{pid}"] = "l" if delta < 0 else "r"
 
 
-def carousel_arrows(prefix: str, key: str, pid: str, n: int):
-    with st.container(key=f"{key}_{pid}" if prefix == "g" else key):
+def carousel_arrows(prefix: str, ckey: str, pid: str, n: int):
+    with st.container(key=ckey):
         a, b = st.columns(2)
-        a.button("", key=f"btnp_{key}_{pid}", icon=":material/chevron_left:", on_click=_step, args=(prefix, pid, n, -1))
-        b.button("", key=f"btnn_{key}_{pid}", icon=":material/chevron_right:", on_click=_step, args=(prefix, pid, n, 1))
+        a.button("", key=f"btnp_{ckey}", icon=":material/chevron_left:", on_click=_step, args=(prefix, pid, n, -1))
+        b.button("", key=f"btnn_{ckey}", icon=":material/chevron_right:", on_click=_step, args=(prefix, pid, n, 1))
 
 
 @st.fragment
 def product_card(p, scope: str = "h"):
+    """Tarjeta aislada: cambiar foto solo recarga esta tarjeta (sin lag)."""
     pid = p["id"]
     imgs = p.get("images") or ["demo:bag:0"]
     n = len(imgs)
@@ -837,10 +967,9 @@ def product_card(p, scope: str = "h"):
         html(card_image_html(p, idx, ss.get(f"dir_{pid}", "r")))
         if n > 1:
             carousel_arrows("", f"arw_{scope}_{pid}", pid, n)
-        html(f'<div class="ra-info"><div class="ra-cat">{esc(p.get("category"))}</div>'
+        html(f'<div class="ra-info"><div class="ra-brand">{esc(p.get("brand") or p.get("category"))}</div>'
              f'<div class="ra-name" title="{esc(p["name"])}">{esc(p["name"])}</div>'
-             f'<div class="ra-chips">{chips_html(p)}</div>'
-             f'<div class="ra-price">{money_html(p["price"])}</div></div>')
+             f'<div class="ra-chips">{chips_html(p)}</div><div class="ra-price">{money_html(p["price"])}</div></div>')
         if st.button("Ver detalle", key=f"view_{scope}_{pid}", use_container_width=True):
             ss.view = "product"
             st.query_params.clear()
@@ -849,42 +978,31 @@ def product_card(p, scope: str = "h"):
 
 
 def product_grid(items, scope="h", cols_n=4):
-    html("<style>" + "".join(f".st-key-card_{scope}_{p['id']}{{animation-delay:{min(i, 11) * .05:.2f}s}}"
+    html("<style>" + "".join(f".st-key-card_{scope}_{p['id']}{{animation-delay:{min(i, 11) * .06:.2f}s}}"
                              for i, p in enumerate(items)) + "</style>")
     with st.container(key=f"grid_{scope}"):
         for start in range(0, len(items), cols_n):
-            cols = st.columns(cols_n, gap="small")
+            cols = st.columns(cols_n, gap="medium")
             for j, p in enumerate(items[start:start + cols_n]):
                 with cols[j]:
                     product_card(p, scope)
 
 
-def empty(title: str, text: str):
-    html(f'<div class="ra-empty"><b>{esc(title)}</b>{esc(text)}</div>')
-
-
-def section(title_html: str, right: str = "", sub: str = ""):
-    html(f'<div class="ra-head"><div class="t">{title_html}</div><div class="c">{right}</div></div>'
-         + (f'<div class="ra-sub">{sub}</div>' if sub else ""))
-
-
-# ════════════════════════════════════════════════════════════════════════
-# 9. VISTAS PÚBLICAS
-# ════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════
+# 9 · VISTAS DE LA TIENDA
+# ══════════════════════════════════════════════════════════════════════════
 def render_home(db):
-    render_contact()
-    avail = sum(1 for p in db["products"] if p["status"] == "Disponible")
-    section("Catálogo", f"{avail} disponibles de {len(db['products'])}")
+    render_intro()
+    section("Catálogo", "La colección", "Toca cualquier pieza para ver sus fotos, medidas y origen.")
 
     present = [c for c in CATEGORIES if any(p["category"] == c for p in db["products"])]
-    f1, f2 = st.columns([3, 1], vertical_alignment="center")
-    with f1:
-        cat = st.pills("Categoría", ["Todo"] + present, default="Todo",
-                       label_visibility="collapsed", key="cat_pills") or "Todo"
-    with f2:
-        only = st.toggle("Solo disponibles", key="only_avail")
-    q = st.text_input("Buscar", placeholder="Buscar por nombre, marca o talla",
-                      label_visibility="collapsed", key="search", icon=":material/search:")
+    cat = st.pills("Categoría", ["Todo"] + present, default="Todo",
+                   label_visibility="collapsed", key="cat_pills") or "Todo"
+    f1, f2, f3 = st.columns([2.4, 1.2, 1], vertical_alignment="center")
+    q = f1.text_input("Buscar", placeholder="Buscar por nombre, marca o talla", key="search",
+                      label_visibility="collapsed", icon=":material/search:")
+    sort = f2.selectbox("Ordenar", SORTS, key="sort", label_visibility="collapsed")
+    only = f3.toggle("Solo disponibles", key="only_avail")
 
     items = db["products"]
     if cat != "Todo":
@@ -895,11 +1013,30 @@ def render_home(db):
         ql = q.lower().strip()
         items = [p for p in items if ql in " ".join(str(p.get(k, "")) for k in
                                                      ("name", "brand", "size", "made_in", "category", "short")).lower()]
-    items = sorted(items, key=lambda p: p["status"] != "Disponible")
+    if sort == "Precio: menor a mayor":
+        items = sorted(items, key=lambda p: p["price"])
+    elif sort == "Precio: mayor a menor":
+        items = sorted(items, key=lambda p: -p["price"])
+    elif sort == "Más recientes":
+        items = sorted(items, key=lambda p: p.get("created", ""), reverse=True)
+    else:
+        items = sorted(items, key=lambda p: p["status"] != "Disponible")
+
+    html(f'<div class="ra-count">{len(items)} {"pieza" if len(items) == 1 else "piezas"}</div>')
     if items:
         product_grid(items, "h")
     else:
         empty("Sin resultados", "Prueba otra categoría o borra la búsqueda.")
+
+    section("Así de simple", "Cómo comprar")
+    html('<div class="ra-steps">'
+         '<div class="ra-step"><div class="n">01</div><b>Elige tu pieza</b>'
+         '<span>Revisa fotos, talla y origen en la ficha de cada artículo.</span></div>'
+         '<div class="ra-step"><div class="n">02</div><b>Consulta el stock</b>'
+         '<span>El botón Consultar arma el correo con el producto y su link. Solo envíalo.</span></div>'
+         '<div class="ra-step"><div class="n">03</div><b>Coordinamos la entrega</b>'
+         '<span>Acordamos punto y horario en Santiago. Pagas al recibir o por transferencia.</span></div>'
+         '</div>')
 
 
 @st.fragment
@@ -910,7 +1047,7 @@ def gallery(p):
     idx = ss.get(f"gidx_{pid}", 0) % n
     html(card_image_html(p, idx, ss.get(f"gdir_{pid}", "r"), big=True))
     if n > 1:
-        carousel_arrows("g", "garw", pid, n)
+        carousel_arrows("g", f"garw_{pid}", pid, n)
         html('<div class="ra-thumbs">' + "".join(
             f'<img class="{"on" if i == idx else ""}" src="{img_src(e, thumb=True)}"/>' for i, e in enumerate(imgs))
              + "</div>")
@@ -919,64 +1056,60 @@ def gallery(p):
 def render_product(db, pid):
     p = get_product(db, pid)
     if not p:
-        empty("Este artículo ya no está publicado", "Puede que se haya vendido. Revisa el catálogo.")
         st.write("")
-        if st.button("Ver catálogo", type="primary", icon=":material/storefront:"):
+        empty("Esta pieza ya no está publicada", "Puede que se haya vendido. Revisa la colección.")
+        st.write("")
+        if st.button("Ver la colección", type="primary"):
             go("home")
         return
-    if st.button("Volver", key="back_top", icon=":material/arrow_back:"):
-        go("home")
-
+    html(f'<div class="ra-crumb">Tienda / {esc(p["category"])} / <b>{esc(p["name"])}</b></div>')
     left, right = st.columns([1, 1.05], gap="large")
     with left:
         gallery(p)
     with right:
         sold = p["status"] != "Disponible"
-        pill = f'<span class="ra-pill {"out" if sold else "ok"}">{esc(p["status"])}</span>'
         subject, body = consult_message(db, p)
         sl = size_label(p)
         wa_txt = (f"Hola Benjamín, quiero consultar el stock de: {p['name']}" + (f" ({sl})" if sl else "")
                   + f" – {money(p['price'])}\n{product_link(db, p['id'])}")
         specs = [("ruler", "Talla" if p.get("category") in SIZED else "Medida", p.get("size") or "No aplica"),
                  ("globe", "Made in", p.get("made_in") or "—"), ("tag", "Marca", p.get("brand") or "—"),
-                 ("spark", "Condición", p.get("condition") or "—"), ("bag", "Categoría", p.get("category")),
+                 ("spark", "Condición", p.get("condition") or "—"), ("box", "Categoría", p.get("category")),
                  ("calendar", "Publicado", fmt_date(p.get("created")))]
         desc = esc(p.get("description"))
         det = "".join(f"<li>{esc(x)}</li>" for x in (p.get("details") or []) if str(x).strip())
-        html(
-            '<div class="ra-d">'
-            f'<div class="ra-d-cat">{esc(p.get("category"))}</div>'
-            f'<div class="ra-d-name">{esc(p["name"])}</div>'
-            f'<div class="ra-d-price"><b>{money_html(p["price"])}</b>{pill}</div>'
-            f'<div class="ra-chips">{chips_html(p, with_brand=True)}</div>'
-            f'<div class="ra-d-short">{esc(p.get("short"))}</div>'
-            f'<a class="ra-cta" href="{mailto(subject, body)}">{ICON["mail"]}'
-            f'{"Consultar disponibilidad" if sold else "Consultar"}</a>'
-            '<div class="ra-cta-row">'
-            f'<a class="ra-cta ghost" href="{wa_link(wa_txt)}" target="_blank" rel="noopener">{ICON["whatsapp"]}WhatsApp</a>'
-            f'<a class="ra-cta ghost" href="{gmail_link(subject, body)}" target="_blank" rel="noopener">{ICON["mail"]}Gmail</a>'
-            '</div>'
-            '<div class="ra-specs">' + "".join(
-                f"<div><small>{ICON[i]}{esc(k)}</small><span>{esc(v)}</span></div>" for i, k, v in specs) + "</div>"
-            '<div class="ra-desc">'
-            + (f"<h4>Descripción</h4><p>{desc}</p>" if desc else "")
-            + (f"<h4 style='margin-top:1rem!important'>Detalles</h4><ul>{det}</ul>" if det else "")
-            + "</div></div>")
-        st.caption("Link directo del artículo")
+        html('<div class="ra-d">'
+             f'<div class="ra-d-brand">{esc(p.get("brand") or p.get("category"))}</div>'
+             f'<div class="ra-d-name">{esc(p["name"])}</div>'
+             f'<div class="ra-d-price"><b>{money_html(p["price"])}</b>'
+             f'<span class="ra-pill {"out" if sold else "ok"}">{esc(p["status"])}</span></div>'
+             f'<div class="ra-chips">{chips_html(p, with_brand=True)}</div>'
+             f'<div class="ra-d-short">{esc(p.get("short"))}</div>'
+             f'<a class="ra-cta" href="{mailto(subject, body)}">{ICON["mail"]}'
+             f'{"Consultar disponibilidad" if sold else "Consultar"}</a>'
+             '<div class="ra-cta-row">'
+             f'<a class="ra-cta ghost" href="{wa_link(wa_txt)}" target="_blank" rel="noopener">{ICON["whatsapp"]}WhatsApp</a>'
+             f'<a class="ra-cta ghost" href="{gmail_link(subject, body)}" target="_blank" rel="noopener">{ICON["mail"]}Gmail</a>'
+             '</div><div class="ra-specs">'
+             + "".join(f"<div><small>{ICON[i]}{esc(k)}</small><span>{esc(v)}</span></div>" for i, k, v in specs)
+             + '</div><div class="ra-desc">'
+             + (f"<h4>Descripción</h4><p>{desc}</p>" if desc else "")
+             + (f"<h4 style='margin-top:1.1rem!important'>Detalles</h4><ul>{det}</ul>" if det else "")
+             + "</div></div>")
+        st.caption("Link directo de esta pieza")
         st.code(product_link(db, p["id"]), language=None)
 
     related = [x for x in db["products"] if x["id"] != p["id"] and x["category"] == p["category"]]
     related += [x for x in db["products"] if x["id"] != p["id"] and x not in related]
     related = sorted(related, key=lambda x: x["status"] != "Disponible")[:4]
     if related:
-        st.write("")
-        section("También te puede <i>gustar</i>")
+        section("Sigue mirando", "También te puede gustar")
         product_grid(related, "r")
 
 
-# ════════════════════════════════════════════════════════════════════════
-# 10. CUENTAS
-# ════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════
+# 10 · CUENTAS DE USUARIO
+# ══════════════════════════════════════════════════════════════════════════
 def avatar_picker(prefix: str, default: str | None = None):
     names = list(AVATAR_COLORS)
     key = f"{prefix}_color"
@@ -988,28 +1121,26 @@ def avatar_picker(prefix: str, default: str | None = None):
 
 
 def opt_field(label: str, key: str, placeholder: str, current: str = ""):
-    """Campo opcional con selector Agregar / No agregar."""
-    choice = st.radio(label, ["No agregar", "Agregar"], horizontal=True, key=f"{key}_opt",
-                      index=1 if current else 0)
-    if choice == "Agregar":
+    """Campo opcional con Agregar / No agregar."""
+    if st.radio(label, ["No agregar", "Agregar"], horizontal=True, key=f"{key}_opt",
+                index=1 if current else 0) == "Agregar":
         return st.text_input(label, value=current, key=key, placeholder=placeholder,
                              label_visibility="collapsed").strip()
     return ""
 
 
 def render_login(db):
-    _, mid, _ = st.columns([1, 1.5, 1])
+    _, mid, _ = st.columns([1, 1.45, 1])
     with mid, st.container(key="authbox"):
-        html('<div class="ra-auth-h">Tu cuenta</div>'
-             '<div class="ra-auth-s">Regístrate y tus compras quedarán guardadas en tu perfil.</div>')
-        tab_user, tab_admin = st.tabs([":material/person: Usuario", ":material/admin_panel_settings: Administrador"])
+        html(f'<div class="ra-auth">{LOGO}<h3>Tu cuenta</h3>'
+             '<p>Regístrate y tus compras quedarán guardadas en tu perfil.</p></div>')
+        tab_user, tab_admin = st.tabs(["Usuario", "Administrador"])
         with tab_user:
             mode = st.segmented_control("Modo", ["Iniciar sesión", "Crear cuenta"], default="Iniciar sesión",
                                         key="auth_mode", label_visibility="collapsed") or "Iniciar sesión"
             if mode == "Iniciar sesión":
-                phone = st.text_input("Teléfono", placeholder="+56 9 1234 5678", key="li_phone",
-                                      icon=":material/call:")
-                pw = st.text_input("Contraseña", type="password", key="li_pw", icon=":material/lock:")
+                phone = st.text_input("Teléfono", placeholder="+56 9 1234 5678", key="li_phone")
+                pw = st.text_input("Contraseña", type="password", key="li_pw")
                 if st.button("Iniciar sesión", type="primary", use_container_width=True, key="li_btn"):
                     u = find_user_by_phone(db, phone)
                     if u and check_pw(pw, u.get("pw")):
@@ -1020,8 +1151,7 @@ def render_login(db):
             else:
                 register_form(db)
         with tab_admin:
-            apw = st.text_input("Contraseña de administrador", type="password", key="adm_pw",
-                                icon=":material/key:")
+            apw = st.text_input("Contraseña de administrador", type="password", key="adm_pw")
             if st.button("Entrar al panel", type="primary", use_container_width=True, key="adm_btn"):
                 if check_admin(db, apw):
                     ss.role, ss.user_id = "admin", None
@@ -1045,7 +1175,6 @@ def register_form(db):
                                  label_visibility="collapsed")
     else:
         color = avatar_picker("rg")
-
     if st.button("Crear cuenta", type="primary", use_container_width=True, key="rg_btn"):
         n = norm_phone(phone)
         existing = find_user_by_phone(db, phone)
@@ -1064,7 +1193,7 @@ def register_form(db):
         data = dict(name=name.strip(), phone=n, phone_display=phone.strip(), email=email, location=location,
                     pw=hash_pw(pw), photo=save_upload(photo, 600) if photo else None,
                     avatar_color=AVATAR_COLORS.get(color or "Rojo"))
-        if existing:  # cliente creado antes por el admin: toma esa cuenta y sus compras
+        if existing:
             existing.update(data)
             uid = existing["id"]
         else:
@@ -1079,13 +1208,12 @@ def register_form(db):
 def profile_header(db, u):
     c, units, total = user_stats(db, u["id"])
     gender = u.get("gender_custom") if u.get("gender") == "Personalizado" and u.get("gender_custom") else u.get("gender")
-    bits = [("phone", u.get("phone_display") or u["phone"]), ("mail", u.get("email")),
-            ("pin", u.get("location")), ("gender", gender), ("calendar", f"Desde {fmt_date(u.get('created'))}")]
-    meta = "".join(f"<span>{ICON[i]}{esc(v)}</span>" for i, v in bits if v)
+    bits = [("phone", u.get("phone_display") or u["phone"]), ("mail", u.get("email")), ("pin", u.get("location")),
+            ("gender", gender), ("calendar", f"Desde {fmt_date(u.get('created'))}")]
     html(f'<div class="ra-prof"><img src="{user_avatar(u)}"/><div><div class="n">{esc(u["name"])}</div>'
-         f'<div class="d">{meta}</div></div><div class="k"><div><b>{c}</b><small>compras</small></div>'
-         f'<div><b>{units}</b><small>unidades</small></div><div><b>{money_html(total)}</b><small>total</small></div>'
-         '</div></div>')
+         f'<div class="d">{"".join(f"<span>{ICON[i]}{esc(v)}</span>" for i, v in bits if v)}</div></div>'
+         f'<div class="k"><div><b>{c}</b><small>compras</small></div><div><b>{units}</b><small>unidades</small></div>'
+         f'<div><b>{money_html(total)}</b><small>total</small></div></div></div>')
 
 
 def purchases_list(db, purchases, admin=False):
@@ -1118,7 +1246,7 @@ def render_profile(db):
     if not u:
         go("login")
     profile_header(db, u)
-    t1, t2 = st.tabs([":material/receipt_long: Mis compras", ":material/manage_accounts: Mis datos"])
+    t1, t2 = st.tabs(["Mis compras", "Mis datos"])
     with t1:
         purchases_list(db, user_purchases(db, u["id"]))
     with t2:
@@ -1138,14 +1266,12 @@ def render_profile(db):
             new_photo = st.file_uploader("Foto", type=["jpg", "jpeg", "png", "webp"], key="pf_photo",
                                          label_visibility="collapsed")
         elif ph == "Usar avatar":
-            cur = next((k for k, v in AVATAR_COLORS.items() if v == u.get("avatar_color")), None)
-            color = avatar_picker("pf", cur)
-        with st.expander("Cambiar contraseña", icon=":material/lock:"):
+            color = avatar_picker("pf", next((k for k, v in AVATAR_COLORS.items() if v == u.get("avatar_color")), None))
+        with st.expander("Cambiar contraseña"):
             npw = st.text_input("Nueva contraseña", type="password", key="pf_npw")
             npw2 = st.text_input("Repetir nueva contraseña", type="password", key="pf_npw2")
         b1, b2 = st.columns(2)
-        if b1.button("Guardar cambios", type="primary", use_container_width=True, key="pf_save",
-                     icon=":material/save:"):
+        if b1.button("Guardar cambios", type="primary", use_container_width=True, key="pf_save"):
             if not name.strip():
                 st.error("El nombre no puede quedar vacío.")
             elif npw and (len(npw) < 4 or npw != npw2):
@@ -1163,13 +1289,13 @@ def render_profile(db):
                 save_db(db)
                 flash("Cambios guardados")
                 st.rerun()
-        if b2.button("Cerrar sesión", use_container_width=True, key="pf_out", icon=":material/logout:"):
+        if b2.button("Cerrar sesión", use_container_width=True, key="pf_out"):
             logout()
 
 
-# ════════════════════════════════════════════════════════════════════════
-# 11. ADMINISTRACIÓN
-# ════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════
+# 11 · PANEL DE ADMINISTRACIÓN
+# ══════════════════════════════════════════════════════════════════════════
 def _set_status(pid):
     db = load_db()
     p = get_product(db, pid)
@@ -1187,7 +1313,7 @@ def product_form_fields(prefix, p=None):
                             index=CATEGORIES.index(p["category"]) if p.get("category") in CATEGORIES else 0)
     c3, c4, c5 = st.columns(3)
     price = c3.number_input("Precio (CLP)", min_value=0, step=500, value=int(p.get("price", 0)), key=f"{prefix}_price")
-    size = c4.text_input("Talla o medida", value=p.get("size", ""), placeholder="L, 42, Única…", key=f"{prefix}_size")
+    size = c4.text_input("Talla o medida", value=p.get("size", ""), placeholder="L, 42, 100 ml…", key=f"{prefix}_size")
     mi = p.get("made_in", "China")
     made = c5.selectbox("Made in", MADE_IN, key=f"{prefix}_made",
                         index=MADE_IN.index(mi) if mi in MADE_IN else len(MADE_IN) - 1)
@@ -1208,7 +1334,7 @@ def product_form_fields(prefix, p=None):
 
 
 def admin_products(db):
-    with st.expander("Publicar producto nuevo", icon=":material/add_circle:"):
+    with st.expander("Publicar una pieza nueva", icon=":material/add:"):
         with st.form("add_prod", clear_on_submit=True, border=False):
             data = product_form_fields("np")
             imgs = st.file_uploader("Fotos (la primera será la portada)", type=["jpg", "jpeg", "png", "webp"],
@@ -1216,7 +1342,7 @@ def admin_products(db):
             ok = st.form_submit_button("Publicar", type="primary", use_container_width=True)
         if ok:
             if not data["name"]:
-                st.error("El producto necesita un nombre.")
+                st.error("La pieza necesita un nombre.")
             else:
                 data.update(id=new_id(), created=now_iso(),
                             images=[save_upload(f) for f in (imgs or [])] or ["demo:bag:0"])
@@ -1226,7 +1352,7 @@ def admin_products(db):
                 st.rerun()
 
     if not db["products"]:
-        empty("Catálogo vacío", "Publica tu primer producto arriba.")
+        empty("Catálogo vacío", "Publica tu primera pieza arriba.")
     for p in db["products"]:
         pid = p["id"]
         with st.container(border=True):
@@ -1256,7 +1382,7 @@ def admin_products(db):
                     db["products"] = [x for x in db["products"] if x["id"] != pid]
                     save_db(db)
                     ss.confirm_del = None
-                    flash("Producto eliminado", ":material/delete:")
+                    flash("Pieza eliminada", ":material/delete:")
                     st.rerun()
                 if n.button("Cancelar", key=f"no_{pid}", use_container_width=True):
                     ss.confirm_del = None
@@ -1278,7 +1404,7 @@ def admin_products(db):
                     saved = st.form_submit_button("Guardar cambios", type="primary", use_container_width=True)
                 if saved:
                     if not data["name"]:
-                        st.error("El producto necesita un nombre.")
+                        st.error("La pieza necesita un nombre.")
                     else:
                         keep = [e for i, e in enumerate(imgs) if i not in rm]
                         if imgs and cover not in rm and imgs[cover] in keep:
@@ -1289,7 +1415,7 @@ def admin_products(db):
                         keep += [save_upload(f) for f in (add or [])]
                         p.update(data, images=keep or ["demo:bag:0"])
                         save_db(db)
-                        flash("Producto actualizado")
+                        flash("Pieza actualizada")
                         st.rerun()
 
 
@@ -1298,14 +1424,14 @@ def admin_sales(db):
         empty("Todavía no hay clientes", "Cuando alguien cree su cuenta, o lo agregues en Clientes, podrás registrar sus compras aquí.")
         return
     if not db["products"]:
-        st.info("Publica al menos un producto para registrar ventas.")
+        st.info("Publica al menos una pieza para registrar ventas.")
         return
-    html('<div class="ra-sub">Ej: Pepito compró la Polera roja y ya se la entregaste. Queda guardado en su perfil.</div>')
+    html('<p class="ra-note">Ej: Pepito compró la Polera roja y ya se la entregaste. Queda guardado en su perfil.</p>')
     users = sorted(db["users"], key=lambda u: u["name"].lower())
     c1, c2 = st.columns(2)
     uid = c1.selectbox("Cliente", [u["id"] for u in users], key="sale_user",
                        format_func=lambda i: (lambda u: f"{u['name']} · {u.get('phone_display') or u['phone']}")(get_user(db, i)))
-    pid = c2.selectbox("Producto", [p["id"] for p in db["products"]], key="sale_prod",
+    pid = c2.selectbox("Pieza", [p["id"] for p in db["products"]], key="sale_prod",
                        format_func=lambda i: (lambda p: f"{p['name']} · {money(p['price'])}"
                                               + ("" if p["status"] == "Disponible" else f" · {p['status']}"))(get_product(db, i)))
     p = get_product(db, pid)
@@ -1314,9 +1440,8 @@ def admin_sales(db):
     price = c4.number_input("Precio unitario", min_value=0, step=500, value=int(p["price"]), key=f"sale_price_{pid}")
     d = c5.date_input("Fecha de entrega", value=date.today(), key="sale_date", format="DD/MM/YYYY")
     note = st.text_input("Nota (opcional)", placeholder="Ej: entregado en metro Los Héroes", key="sale_note")
-    mark = st.checkbox("Marcar el producto como Agotado", value=True, key="sale_mark")
-    if st.button("Registrar venta", type="primary", use_container_width=True, key="sale_btn",
-                 icon=":material/receipt_long:"):
+    mark = st.checkbox("Marcar la pieza como Agotado", value=True, key="sale_mark")
+    if st.button("Registrar venta", type="primary", use_container_width=True, key="sale_btn"):
         db["purchases"].append(dict(id=new_id(), user_id=uid, product_id=pid, product_name=p["name"],
                                     size=p.get("size", ""), qty=int(qty), unit_price=int(price),
                                     total=int(qty) * int(price), date=d.isoformat(), note=note.strip(),
@@ -1329,13 +1454,12 @@ def admin_sales(db):
 
     recent = sorted(db["purchases"], key=lambda x: x.get("created", ""), reverse=True)[:8]
     if recent:
-        st.write("")
-        section("Últimas ventas")
+        section("", "Últimas ventas", left=True)
         rows = "".join(f"<tr><td>{fmt_date(x['date'])}</td><td>{esc((get_user(db, x['user_id']) or {}).get('name', '—'))}</td>"
                        f"<td>{esc(x['product_name'])}</td><td>{x['qty']}</td><td>{money_html(x['total'])}</td></tr>"
                        for x in recent)
         html('<div class="ra-table-wrap"><table class="ra-table"><thead><tr><th>Fecha</th><th>Cliente</th>'
-             f'<th>Producto</th><th>Cant.</th><th>Total</th></tr></thead><tbody>{rows}</tbody></table></div>')
+             f'<th>Pieza</th><th>Cant.</th><th>Total</th></tr></thead><tbody>{rows}</tbody></table></div>')
 
 
 def admin_clients(db):
@@ -1377,9 +1501,9 @@ def admin_clients(db):
 
     top = [s for s in stats if s[3] > 0][:3]
     if top:
-        section("Quién te compra <i>más</i>")
+        section("", "Quién te compra más", left=True)
         html('<div class="ra-podium">' + "".join(
-            f'<div class="ra-pod{" first" if i == 0 else ""}" style="animation-delay:{i * .08}s"><div class="p">{i + 1}</div>'
+            f'<div class="ra-pod{" first" if i == 0 else ""}"><div class="p">{i + 1}</div>'
             f'<img src="{user_avatar(u)}"/><div><b>{esc(u["name"])}</b><small>{c} compras · {money_html(t)}</small></div></div>'
             for i, (u, c, _, t, _) in enumerate(top)) + "</div>")
 
@@ -1392,8 +1516,7 @@ def admin_clients(db):
          '<th>Correo</th><th>Ubicación</th><th>Compras</th><th>Unid.</th><th>Total</th><th>Última</th></tr></thead>'
          f'<tbody>{rows}</tbody></table></div>')
 
-    st.write("")
-    section("Perfil del cliente")
+    section("", "Perfil del cliente", left=True)
     uid = st.selectbox("Cliente", [s[0]["id"] for s in stats], key="cl_pick",
                        format_func=lambda i: get_user(db, i)["name"], label_visibility="collapsed")
     u = get_user(db, uid)
@@ -1422,26 +1545,26 @@ def admin_clients(db):
 
 def admin_settings(db):
     found = find_owner_photo()
-    html(f'<div class="ra-owner"><img src="{owner_photo()}"/><div class="ra-sub" style="margin:0">'
+    html(f'<div class="ra-ownerset"><img src="{owner_photo()}"/><div class="ra-note">'
          + (f"Foto cargada desde <b>{esc(found.relative_to(BASE_DIR))}</b>." if found else
-            "No se encontró <b>benja.jpeg</b>. Súbela a la raíz del repositorio de GitHub y se mostrará sola.")
+            "No se encontró <b>benja.jpeg</b>. Súbela a la raíz del repositorio y aparecerá sola.")
          + "</div></div>")
     st.divider()
-    section("Link de la tienda", sub="Se usa en los correos de consulta. Si publicas la app, pega aquí su dirección.")
+    section("", "Link de la tienda", "Se usa en los correos de consulta. Si publicas la app, pega aquí su dirección.", left=True)
     bu = st.text_input("Dirección pública", value=db["settings"].get("base_url", ""), key="set_base",
                        placeholder=app_base_url(db), label_visibility="collapsed")
-    if st.button("Guardar link", key="set_base_btn", icon=":material/link:"):
+    if st.button("Guardar link", key="set_base_btn"):
         db["settings"]["base_url"] = bu.strip()
         save_db(db)
         flash("Link guardado", ":material/link:")
         st.rerun()
     st.divider()
-    section("Contraseña de administrador")
+    section("", "Contraseña de administrador", left=True)
     a, b, c = st.columns(3)
     cur = a.text_input("Actual", type="password", key="set_cur")
     new = b.text_input("Nueva", type="password", key="set_new")
     new2 = c.text_input("Repetir nueva", type="password", key="set_new2")
-    if st.button("Cambiar contraseña", key="set_pw_btn", icon=":material/key:"):
+    if st.button("Cambiar contraseña", key="set_pw_btn"):
         if not check_admin(db, cur):
             st.error("La contraseña actual no es correcta.")
         elif len(new) < 6 or new != new2:
@@ -1453,8 +1576,7 @@ def admin_settings(db):
             st.rerun()
     st.divider()
     st.download_button("Descargar respaldo (JSON)", json.dumps(db, ensure_ascii=False, indent=2),
-                       file_name=f"rissos_respaldo_{date.today().isoformat()}.json", mime="application/json",
-                       icon=":material/download:")
+                       file_name=f"rissos_respaldo_{date.today().isoformat()}.json", mime="application/json")
 
 
 def render_admin(db):
@@ -1462,12 +1584,11 @@ def render_admin(db):
         go("login")
     h, o = st.columns([5, 1], vertical_alignment="bottom")
     with h:
-        section("Panel de <i>administración</i>")
+        section("Administración", "Panel de la tienda", left=True)
     with o:
         if st.button("Salir", key="adm_out", icon=":material/logout:", use_container_width=True):
             logout()
-    t1, t2, t3, t4 = st.tabs([":material/inventory_2: Productos", ":material/receipt_long: Registrar venta",
-                              ":material/group: Clientes", ":material/settings: Ajustes"])
+    t1, t2, t3, t4 = st.tabs(["Piezas", "Registrar venta", "Clientes", "Ajustes"])
     with t1:
         admin_products(db)
     with t2:
@@ -1478,17 +1599,27 @@ def render_admin(db):
         admin_settings(db)
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# 12 · PIE DE PÁGINA Y BOTÓN FLOTANTE
+# ══════════════════════════════════════════════════════════════════════════
 def render_footer():
-    html(f'<footer class="ra-foot"><div><div class="b">Rissos Anghell Store</div>'
-         f'© {date.today().year} Benjamín Espinoza · Santiago, Chile</div><nav>'
-         f'<a href="{wa_link()}" target="_blank" rel="noopener" title="WhatsApp">{ICON["whatsapp"]}</a>'
-         f'<a href="{IG_LINK}" target="_blank" rel="noopener" title="Instagram">{ICON["instagram"]}</a>'
-         f'<a href="{mailto("Contacto – Rissos Anghell Store")}" title="Correo">{ICON["mail"]}</a></nav></footer>')
+    html('<div class="ra-foot"><div class="ra-foot-grid">'
+         f'<div>{logo_html()}<p>{esc(OWNER["tagline"])} Piezas revisadas y entregas coordinadas en Santiago.</p></div>'
+         '<div><h5>Contacto</h5>'
+         f'<a class="l" href="{wa_link()}" target="_blank" rel="noopener">{ICON["whatsapp"]}{OWNER["whatsapp_display"]}</a>'
+         f'<a class="l" href="{IG_LINK}" target="_blank" rel="noopener">{ICON["instagram"]}@{OWNER["instagram"]}</a>'
+         f'<a class="l" href="{mailto("Contacto – Rissos Anghell Store")}">{ICON["mail"]}{OWNER["email"]}</a></div>'
+         '<div><h5>Información</h5>'
+         f'<div class="li">{esc(OWNER["city"])}</div><div class="li">Entregas coordinadas</div>'
+         '<div class="li">Pago al recibir o por transferencia</div></div>'
+         f'</div><div class="ra-copy">{esc(COPYRIGHT)}</div></div>'
+         f'<a class="ra-float" href="{wa_link("Hola Benjamín, te escribo desde Rissos Anghell Store.")}" '
+         f'target="_blank" rel="noopener" aria-label="Escribir por WhatsApp">{ICON["whatsapp"]}<span>Escríbeme</span></a>')
 
 
-# ════════════════════════════════════════════════════════════════════════
-# 12. MAIN
-# ════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════
+# 13 · MAIN
+# ══════════════════════════════════════════════════════════════════════════
 def main():
     db = load_db()
     inject_css()
@@ -1499,7 +1630,7 @@ def main():
     pid = st.query_params.get("producto")
     view = "product" if pid else ("home" if ss.view == "product" else ss.view)
 
-    render_navbar(db, view)
+    render_header(db, view)
     {"product": lambda: render_product(db, pid), "login": lambda: render_login(db),
      "profile": lambda: render_profile(db), "admin": lambda: render_admin(db)}.get(view, lambda: render_home(db))()
     render_footer()
